@@ -1,0 +1,14 @@
+{
+  "name": "Callum027/razor",
+  "version": "0.0.1",
+  "author": "Callum027",
+  "summary": "A Puppet module for Puppet Razor",
+  "license": "Apache 2.0",
+  "source": "https://www.github.com/Callum027/puppet-razor",
+  "project_page": "https://www.github.com/Callum027/puppet-razor",
+  "issues_url": "https://www.github.com/Callum027/puppet-razor/issues",
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"}
+  ]
+}
+
