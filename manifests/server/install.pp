@@ -45,7 +45,7 @@ class razor::server::install
 	{
 		$package_ensure = "installed"
 	}
-	else
+	elsif ($ensure == "absent")
 	{
 		$package_ensure = $ensure
 	}

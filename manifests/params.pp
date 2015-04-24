@@ -39,23 +39,77 @@ class razor::params
 		'Debian':
 		{
 			# Executable files.
-			$razor				= "/usr/sbin/razor"
-			$razor_admin			= "/usr/sbin/razor-admin"
+			$razor						= "/usr/sbin/razor"
+			$razor_admin					= "/usr/sbin/razor-admin"
+			$tar						= "/bin/tar"
+			$wget						= "/usr/bin/wget"
+
+			# Working directories.
+			$tmp_dir					= "/tmp"
 
 			# Razor Client configuration variables.
-			$razor_client_packages		= "razor-client"
+			$razor_client_packages				= "razor-client"
 
 			# Razor Server configuration variables.
-			$razor_server_packages		= "razor-server"
-			$razor_server_services		= "razor-server"
+			$razor_server_packages				= "razor-server"
+			$razor_server_services				= "razor-server"
+
+			$razor_user					= "razor"
+			$razor_group					= "razor"
 
 			# PostgreSQL configuration variables.
-			$postgresql_user		= "razor"
-			$postgresql_password		= $postgresql_user
+			$postgresql_user				= "razor"
+			$postgresql_password				= $postgresql_user
 
-			$postgresql_development_db	= "razor_dev"
-			$postgresql_test_db		= "razor_test"
-			$postgresql_production_db	= "razor_prd"
+			$postgresql_development_db			= "razor_dev"
+			$postgresql_test_db				= "razor_test"
+			$postgresql_production_db			= "razor_prd"
+
+			# Microkernel configuration options.
+			$microkernel_url				= "http://links.puppetlabs.com/razor-microkernel-latest.tar"
+
+			# config.yaml options.
+			$config_yaml_all_auth_enabled			= false
+			$config_yaml_all_auth_config			= "shiro.ini"
+
+			$config_yaml_all_microkernel_debug_level	= "debug"
+			$config_yaml_all_microkernel_kernel_args	= ""
+			$config_yaml_all_microkernel_extension_zip	= undef
+
+			$config_yaml_all_secure_api			= false
+			$config_yaml_all_protect_new_nodes		= false
+			$config_yaml_all_match_nodes_on			= [ "mac" ]
+			$config_yaml_all_checkin_interval		= 15
+			$config_yaml_all_task_path			= "tasks"
+			$config_yaml_all_repo_store_root		= "/var/lib/razor/repo-store"
+			$config_yaml_all_broker_path			= "brokers"
+			$config_yaml_all_hook_path			= "hooks"
+
+			$config_yaml_all_facts_blacklist		=
+			[
+				"domain",
+				"filesystems",
+				"fqdn",
+				"hostname",
+				"id",
+				"/kernel.*/",
+				"memoryfree",
+				"memorysize",
+				"memorytotal",
+				"/operatingsystem.*/",
+				"osfamily",
+				"path",
+				"ps",
+				"rubysitedir",
+				"rubyversion",
+				"selinux",
+				"sshdsakey",
+				"/sshfp_[dr]sa/",
+				"sshrsakey",
+				"/swap.*/",
+				"timezone",
+				"/uptime.*/"
+			]
 		}
 
 		# RedHat support will come at a later time!

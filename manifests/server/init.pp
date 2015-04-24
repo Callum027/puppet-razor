@@ -37,7 +37,7 @@
 #
 class razor::server
 (
-	ensure	= "present"
+	$ensure	= "present"
 )
 {
 	if (Class["razor::server::install"] == undef)
@@ -60,6 +60,14 @@ class razor::server
 	{
 		class
 		{ "razor::server::config":
+			ensure	=> $ensure,
+		}
+	}
+
+	if (Class["razor::server::microkernel"] == undef)
+	{
+		class
+		{ "razor::server::microkernel":
 			ensure	=> $ensure,
 		}
 	}
