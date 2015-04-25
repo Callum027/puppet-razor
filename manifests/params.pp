@@ -90,8 +90,6 @@ class razor::params
 			$config_yaml_all_broker_path			= "brokers"
 			$config_yaml_all_hook_path			= "hooks"
 
-			$razor_server_task_path
-
 			$config_yaml_all_facts_blacklist		=
 			[
 				"domain",
