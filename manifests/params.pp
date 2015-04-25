@@ -86,7 +86,7 @@ class razor::params
 			$config_yaml_all_match_nodes_on			= [ "mac" ]
 			$config_yaml_all_checkin_interval		= 15
 			$config_yaml_all_task_path			= "tasks"
-			$config_yaml_all_repo_store_root		= "$razor_install_dir/repo-store"
+			$config_yaml_all_repo_store_root		= "$razor_server_data_dir/repo-store"
 			$config_yaml_all_broker_path			= "brokers"
 			$config_yaml_all_hook_path			= "hooks"
 
