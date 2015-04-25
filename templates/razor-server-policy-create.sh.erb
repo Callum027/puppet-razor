@@ -1,0 +1,30 @@
+#!/bin/sh
+
+<%= @razor %> create-policy \
+<%# Optional arguments. -%>
+<% if @enabled -%>
+	--enabled <%= @enabled %> \
+<% end -%>
+<% if @max_count -%>
+	--max-count <%= @max_count %> \
+<% end -%>
+<% if @before -%>
+	--before '<%= @before %>' \
+<% end -%>
+<% if @after -%>
+	--before '<%= @after %>' \
+<% end -%>
+<% if @tags -%>
+	--tags '<%= @tags %>' \
+<% end -%>
+<% if @node_metadata -%>
+	--node-metadata '<%= @tags %>' \
+<% end -%>
+<%# Required arguments. -%>
+	--name <%= @hook_name %> \
+	--hostname <%= @hostname %> \
+	--root-password <%= @root_password %> \
+	--broker <%= @broker %> \
+	--task <%= @task %>
+
+<%= @rm %> -f $0

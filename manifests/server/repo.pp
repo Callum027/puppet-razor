@@ -35,14 +35,15 @@
 #
 # Copyright 2015 Your name here, unless otherwise noted.
 #
-define razor::server::broker
+define razor::server::repo
 (
 	$ensure		= "present",
 
-	$broker_name	= $name,
-	$broker_type,
+	$repo_name	= $name,
+	$task,
 
-	$configuration	= undef,
+	$url		= undef,
+	$iso_url	= undef,
 
 	$grep		= undef,
 	$razor		= undef,
@@ -76,35 +77,35 @@ define razor::server::broker
 	if ($ensure == "present")
 	{
 		file
-		{ "$tmp_dir/razor-server-broker-create.sh":
+		{ "$tmp_dir/razor-server-repo-create.sh":
 			owner	=> root,
 			group	=> root,
 			mode	=> 755,
-			content	=> template("razor/razor-server-broker-create.sh.erb"),
+			content	=> template("razor/razor-server-repo-create.sh.erb"),
 		}
 
 		exec
-		{ "razor::server::broker:create":
-			command	=> "$tmp_dir/razor-server-broker-create.sh",
-			unless	=> "$razor brokers | $grep '^| $broker_name |'",
+		{ "razor::server::repo:create":
+			command	=> "$tmp_dir/razor-server-repo-create.sh",
+			unless	=> "$razor repos | $grep '^| $repo_name |'",
 			require	=>
 			[
 				Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-				File["$tmp_dir/razor-server-broker-create.sh"]
+				File["$tmp_dir/razor-server-repo-create.sh"]
 			],
 		}
 	}
 	elsif ($ensure == "absent")
 	{
 		file
-		{ "$tmp_dir/razor-server-broker-create.sh":
+		{ "$tmp_dir/razor-server-repo-create.sh":
 			ensure	=> $ensure,
 		}
 
 		exec
-		{ "razor::server::broker::delete":
-			command	=> "$razor delete-broker --name $broker_name",
-			onlyif	=> "$razor broker | $grep '^| $broker_name |'",
+		{ "razor::server::repo::delete":
+			command	=> "$razor delete-repo --name $repo_name",
+			onlyif	=> "$razor repo | $grep '^| $repo_name |'",
 			require	=> Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
 		}
 	}

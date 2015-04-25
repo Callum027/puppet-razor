@@ -1,0 +1,15 @@
+---
+<% if @description -%>
+description: <%= @description %>
+<% end -%>
+<% if @os -%>
+os: <%= @os %>
+<% end -%>
+os_version: <%= @os_version %>
+<% if @base -%>
+base: <%= @base %>
+<% end -%>
+boot_sequence:
+<% @boot_sequence.each do |bs| -%>
+  <%= bs.key %>: <%= bs.value %>
+<% end -%>

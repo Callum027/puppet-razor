@@ -35,20 +35,31 @@
 #
 # Copyright 2015 Your name here, unless otherwise noted.
 #
-define razor::server::broker
+define razor::server::policy
 (
-	$ensure		= "present",
+	$ensure			= "present",
 
-	$broker_name	= $name,
-	$broker_type,
+	# Policy options.
+	$policy_name		= $name,
+	$hostname,
+	$root_password,
+	$broker,
+	$task,
 
-	$configuration	= undef,
+	$enabled		= undef,
+	$max_count		= undef,
+	$before			= undef,
+	$after			= undef,
+	$tags			= undef,
+	$repo			= undef,
+	$node_metadata		= undef,
 
-	$grep		= undef,
-	$razor		= undef,
-	$rm		= undef,
+	# Command dependencies.
+	$grep			= undef,
+	$razor			= undef,
+	$rm			= undef,
 
-	$tmp_dir	= undef
+	$tmp_dir		= undef
 )
 {
 	require razor::params
@@ -76,35 +87,47 @@ define razor::server::broker
 	if ($ensure == "present")
 	{
 		file
-		{ "$tmp_dir/razor-server-broker-create.sh":
+		{ "$tmp_dir/razor-server-policy-create.sh":
 			owner	=> root,
 			group	=> root,
 			mode	=> 755,
-			content	=> template("razor/razor-server-broker-create.sh.erb"),
+			content	=> template("razor/razor-server-policy-create.sh.erb"),
 		}
 
 		exec
-		{ "razor::server::broker:create":
-			command	=> "$tmp_dir/razor-server-broker-create.sh",
-			unless	=> "$razor brokers | $grep '^| $broker_name |'",
+		{ "razor::server::policy:create":
+			command	=> "$tmp_dir/razor-server-policy-create.sh",
+			unless	=> "$razor policies | $grep '^| $policy_name |'",
 			require	=>
 			[
 				Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-				File["$tmp_dir/razor-server-broker-create.sh"]
+				File["$tmp_dir/razor-server-policy-create.sh"],
+				Razor::server::broker[$broker],
+				Razor::server::task[$task],
 			],
+		}
+
+		if ($tags != undef)
+		{
+			Razor::server::tag[$tags] -> Exec["razor::server::policy::create"]
+		}
+
+		if ($repo != undef)
+		{
+			Razor::server::repo[$repo] -> Exec["razor::server::policy::create"]
 		}
 	}
 	elsif ($ensure == "absent")
 	{
 		file
-		{ "$tmp_dir/razor-server-broker-create.sh":
+		{ "$tmp_dir/razor-server-policy-create.sh":
 			ensure	=> $ensure,
 		}
 
 		exec
-		{ "razor::server::broker::delete":
-			command	=> "$razor delete-broker --name $broker_name",
-			onlyif	=> "$razor broker | $grep '^| $broker_name |'",
+		{ "razor::server::policy::delete":
+			command	=> "$razor delete-policy --name $policy_name",
+			onlyif	=> "$razor policy | $grep '^| $policy_name |'",
 			require	=> Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
 		}
 	}

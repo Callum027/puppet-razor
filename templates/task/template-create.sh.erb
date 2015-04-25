@@ -1,0 +1,12 @@
+#!/bin/sh
+
+<% for @templates.each do |f, t| -%>
+<%= @cat %> > <%= f %> << EOF
+<%= t %>
+EOF
+
+r=$?
+<%= @test %> -eq $r || exit $r
+
+<% end -%>
+<%= @rm %> -f $0

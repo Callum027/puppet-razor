@@ -39,6 +39,13 @@ class razor::server
 (
 	$ensure	= "present"
 )
+	if (Class["razor::client"] == undef)
+	{
+		class
+		{ "razor::client":
+			ensure	=> $ensure,
+		}
+	}
 {
 	if (Class["razor::server::install"] == undef)
 	{

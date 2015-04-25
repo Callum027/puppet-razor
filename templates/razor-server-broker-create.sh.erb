@@ -1,0 +1,12 @@
+#!/bin/sh
+
+<%= @razor %> create-broker \
+<%# Optional arguments. -%>
+<% if @configuration -%>
+	--configuration "<%= @configuration %>" \
+<% end -%>
+<%# Required arguments. -%>
+	--name <%= @broker_name %> \
+	--broker-type <%= @_type %>
+
+<%= @rm %> -f $0

@@ -35,14 +35,14 @@
 #
 # Copyright 2015 Your name here, unless otherwise noted.
 #
-define razor::server::broker
+define razor::server::hook
 (
 	$ensure		= "present",
 
-	$broker_name	= $name,
-	$broker_type,
+	$hook_name	= $name,
 
-	$configuration	= undef,
+	$hook_type,
+	$configuration,
 
 	$grep		= undef,
 	$razor		= undef,
@@ -52,6 +52,9 @@ define razor::server::broker
 )
 {
 	require razor::params
+
+	# TODO: Change this to build configuration.yaml and the event files
+	# directly from templates.
 
 	if ($grep == undef)
 	{
@@ -76,35 +79,35 @@ define razor::server::broker
 	if ($ensure == "present")
 	{
 		file
-		{ "$tmp_dir/razor-server-broker-create.sh":
+		{ "$tmp_dir/razor-server-hook-create.sh":
 			owner	=> root,
 			group	=> root,
 			mode	=> 755,
-			content	=> template("razor/razor-server-broker-create.sh.erb"),
+			content	=> template("razor/razor-server-hook-create.sh.erb"),
 		}
 
 		exec
-		{ "razor::server::broker:create":
-			command	=> "$tmp_dir/razor-server-broker-create.sh",
-			unless	=> "$razor brokers | $grep '^| $broker_name |'",
+		{ "razor::server::hook:create":
+			command	=> "$tmp_dir/razor-server-hook-create.sh",
+			unless	=> "$razor hooks | $grep '^| $repo_name |'",
 			require	=>
 			[
 				Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-				File["$tmp_dir/razor-server-broker-create.sh"]
+				File["$tmp_dir/razor-server-hook-create.sh"]
 			],
 		}
 	}
 	elsif ($ensure == "absent")
 	{
 		file
-		{ "$tmp_dir/razor-server-broker-create.sh":
+		{ "$tmp_dir/razor-server-hook-create.sh":
 			ensure	=> $ensure,
 		}
 
 		exec
-		{ "razor::server::broker::delete":
-			command	=> "$razor delete-broker --name $broker_name",
-			onlyif	=> "$razor broker | $grep '^| $broker_name |'",
+		{ "razor::server::hook::delete":
+			command	=> "$razor delete-hook --name $hook_name",
+			onlyif	=> "$razor hook | $grep '^| $hook_name |'",
 			require	=> Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
 		}
 	}

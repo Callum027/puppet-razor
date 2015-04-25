@@ -35,7 +35,45 @@
 #
 # Copyright 2015 Your name here, unless otherwise noted.
 #
-class razor {
+define razor::server::tag
+(
+	$ensure		= "present",
 
+	$tag_name	= $name,
+	$rule,
 
+	$grep		= undef,
+	$razor		= undef,
+)
+{
+	require razor::params
+
+	if ($grep == undef)
+	{
+		$razor = $razor::params::grep
+	}
+
+	if ($razor == undef)
+	{
+		$razor = $razor::params::razor
+	}
+
+	if ($ensure == "present")
+	{
+		exec
+		{ "razor::server::tag:create":
+			command	=> "$razor create-tag --name $tag_name --rule '$rule'",
+			unless	=> "$razor tags | $grep '^| $tag_name |'",
+			require	=> Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
+		}
+	}
+	elsif ($ensure == "absent")
+	{
+		exec
+		{ "razor::server::tag::delete":
+			command	=> "$razor delete-tag --name $tag_name",
+			onlyif	=> "$razor tag | $grep '^| $tag_name |'",
+			require	=> Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
+		}
+	}
 }

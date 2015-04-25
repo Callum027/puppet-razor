@@ -39,8 +39,10 @@ class razor::params
 		'Debian':
 		{
 			# Executable files.
+			$cat						= "/bin/cat"
 			$razor						= "/usr/sbin/razor"
 			$razor_admin					= "/usr/sbin/razor-admin"
+			$rm						= "/bin/rm"
 			$tar						= "/bin/tar"
 			$wget						= "/usr/bin/wget"
 
@@ -53,6 +55,9 @@ class razor::params
 			# Razor Server configuration variables.
 			$razor_server_packages				= "razor-server"
 			$razor_server_services				= "razor-server"
+
+			$razor_server_config_dir			= "/etc/razor"
+			$razor_server_data_dir				= "/var/lib/razor"
 
 			$razor_user					= "razor"
 			$razor_group					= "razor"
@@ -81,9 +86,11 @@ class razor::params
 			$config_yaml_all_match_nodes_on			= [ "mac" ]
 			$config_yaml_all_checkin_interval		= 15
 			$config_yaml_all_task_path			= "tasks"
-			$config_yaml_all_repo_store_root		= "/var/lib/razor/repo-store"
+			$config_yaml_all_repo_store_root		= "$razor_install_dir/repo-store"
 			$config_yaml_all_broker_path			= "brokers"
 			$config_yaml_all_hook_path			= "hooks"
+
+			$razor_server_task_path
 
 			$config_yaml_all_facts_blacklist		=
 			[

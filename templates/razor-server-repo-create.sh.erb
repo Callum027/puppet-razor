@@ -1,0 +1,16 @@
+#!/bin/sh
+
+<%= @razor %> create-repo \
+<%# Optional arguments. -%>
+<% if @url -%>
+	--url <%= @url %> \
+<% elsif @iso_url -%>
+	--iso-url <%= @iso_url %> \
+<% else -%>
+	--no-content true
+<% end -%>
+<%# Required arguments. -%>
+	--name <%= @repo_name %> \
+	--task <%= @task %>
+
+<%= @rm %> -f $0
