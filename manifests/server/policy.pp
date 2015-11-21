@@ -37,98 +37,86 @@
 #
 define razor::server::policy
 (
-	$ensure			= "present",
+  # Required policy options.
+  $hostname,
+  $root_password,
+  $broker,
+  $task,
+  $policy_name = $name,
 
-	# Policy options.
-	$policy_name		= $name,
-	$hostname,
-	$root_password,
-	$broker,
-	$task,
+  # Optional policy options.
+  $enabled       = undef,
+  $max_count     = undef,
+  $before        = undef,
+  $after         = undef,
+  $tags          = undef,
+  $repo          = undef,
+  $node_metadata = undef,
 
-	$enabled		= undef,
-	$max_count		= undef,
-	$before			= undef,
-	$after			= undef,
-	$tags			= undef,
-	$repo			= undef,
-	$node_metadata		= undef,
+  # Dependency options, if optional arguments are set.
+  $require_tags = true,
+  $require_repo = true,
 
-	# Command dependencies.
-	$grep			= undef,
-	$razor			= undef,
-	$rm			= undef,
+  $ensure   = 'present',
+  $tmp_file = undef, # Defined in body
 
-	$tmp_dir		= undef
+  # razor::params default values.
+  $grep    = $::razor::params::grep,
+  $razor   = $::razor::params::razor,
+  $tmp_dir = $::razor::params::tmp_dir,
 )
 {
-	require razor::params
+  if ($ensure == 'present' or $ensure == present)
+  {
+    $_tmp_file = pick($tmp_file, "${tmp_dir}/razor_policy_${name}.json")
 
-	if ($grep == undef)
-	{
-		$razor = $razor::params::grep
-	}
+    file
+    { "razor::server::policy::tmp_file::create::${name}":
+      ensure  => 'file',
+      path    => $_tmp_file,
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0400',
+      content => template('razor/policy.json.erb'),
+    }
 
-	if ($razor == undef)
-	{
-		$razor = $razor::params::razor
-	}
+    exec
+    { "razor::server::policy::create::${name}":
+      command => "${razor} create-policy --json ${_tmp_file}",
+      unless  => "${razor} policies | ${grep} '^| ${policy_name} |'",
+      require =>
+      [
+        Class[['::razor::server', '::razor::config']],
+        File["razor::server::policy::tmp_file::create::${name}"],
+        Razor::server::broker[$broker],
+        Razor::server::task[$task],
+      ],
+    }
 
-	if ($rm == undef)
-	{
-		$rm = $razor::params::rm
-	}
+    if ($tags != undef and require_tags == true)
+    {
+      Razor::server::tag[$tags] -> Exec["razor::server::policy::create::${name}"]
+    }
 
-	if ($tmp_dir == undef)
-	{
-		$tmp_dir = $razor::params::tmp_dir
-	}
+    if ($repo != undef and require_repo == true)
+    {
+      Razor::server::repo[$repo] -> Exec["razor::server::policy::create::${name}"]
+    }
 
-	if ($ensure == "present")
-	{
-		file
-		{ "$tmp_dir/razor-server-policy-create.sh":
-			owner	=> root,
-			group	=> root,
-			mode	=> 755,
-			content	=> template("razor/razor-server-policy-create.sh.erb"),
-		}
-
-		exec
-		{ "razor::server::policy:create":
-			command	=> "$tmp_dir/razor-server-policy-create.sh",
-			unless	=> "$razor policies | $grep '^| $policy_name |'",
-			require	=>
-			[
-				Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-				File["$tmp_dir/razor-server-policy-create.sh"],
-				Razor::server::broker[$broker],
-				Razor::server::task[$task],
-			],
-		}
-
-		if ($tags != undef)
-		{
-			Razor::server::tag[$tags] -> Exec["razor::server::policy::create"]
-		}
-
-		if ($repo != undef)
-		{
-			Razor::server::repo[$repo] -> Exec["razor::server::policy::create"]
-		}
-	}
-	elsif ($ensure == "absent")
-	{
-		file
-		{ "$tmp_dir/razor-server-policy-create.sh":
-			ensure	=> $ensure,
-		}
-
-		exec
-		{ "razor::server::policy::delete":
-			command	=> "$razor delete-policy --name $policy_name",
-			onlyif	=> "$razor policy | $grep '^| $policy_name |'",
-			require	=> Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-		}
-	}
+    file
+    { "razor::server::policy::tmp_file::delete::${name}":
+      ensure  => 'absent',
+      path    => $_tmp_file,
+      require => Exec["razor::server::policy::create::${name}"],
+    }
+  }
+  elsif ($ensure == 'absent' or $ensure == absent)
+  {
+    exec
+    { "razor::server::policy::delete::${name}":
+      command => "${razor} delete-policy --name ${policy_name}",
+      onlyif  => "${razor} policy | ${grep} '^| ${policy_name} |'",
+      require => Class[['::razor::server', '::razor::config']],
+    }
+  }
 }

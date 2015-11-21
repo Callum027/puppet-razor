@@ -37,21 +37,12 @@
 #
 class razor::server::install
 (
-	$ensure			= "present",
-	$razor_server_packages	= $razor::params::razor_server_packages
+  $ensure          = 'present',
+  $server_packages = $razor::params::server_packages,
 ) inherits razor::params
 {
-	if ($ensure == "present")
-	{
-		$package_ensure = "installed"
-	}
-	elsif ($ensure == "absent")
-	{
-		$package_ensure = $ensure
-	}
-
-	package
-	{ $razor_server_packages:
-		ensure	=> $package_ensure,
-	}
+  package
+  { $server_packages:
+    ensure  => $ensure,
+  }
 }

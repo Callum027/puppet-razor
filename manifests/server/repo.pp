@@ -37,76 +37,52 @@
 #
 define razor::server::repo
 (
-	$ensure		= "present",
+  $task,
+  $repo_name = $name,
+  $url       = undef,
+  $iso_url   = undef,
 
-	$repo_name	= $name,
-	$task,
+  $ensure = 'present',
+  $args   = undef, # Defined in body
 
-	$url		= undef,
-	$iso_url	= undef,
-
-	$grep		= undef,
-	$razor		= undef,
-	$rm		= undef,
-
-	$tmp_dir	= undef
+  # razor::params default values.
+  $grep  = $::razor::params::grep,
+  $razor = $::razor::params::razor,
 )
 {
-	require razor::params
+  if ($args != undef)
+  {
+    $_args = $args
+  }
+  elsif ($iso_url != undef)
+  {
+    $_args = "--iso-url ${iso_url}"
+  }
+  elsif ($url != undef)
+  {
+    $_args = "--url ${iso_url}"
+  }
+  else
+  {
+    $_args = '--no-content true'
+  }
 
-	if ($grep == undef)
-	{
-		$razor = $razor::params::grep
-	}
-
-	if ($razor == undef)
-	{
-		$razor = $razor::params::razor
-	}
-
-	if ($rm == undef)
-	{
-		$rm = $razor::params::rm
-	}
-
-	if ($tmp_dir == undef)
-	{
-		$tmp_dir = $razor::params::tmp_dir
-	}
-
-	if ($ensure == "present")
-	{
-		file
-		{ "$tmp_dir/razor-server-repo-create.sh":
-			owner	=> root,
-			group	=> root,
-			mode	=> 755,
-			content	=> template("razor/razor-server-repo-create.sh.erb"),
-		}
-
-		exec
-		{ "razor::server::repo:create":
-			command	=> "$tmp_dir/razor-server-repo-create.sh",
-			unless	=> "$razor repos | $grep '^| $repo_name |'",
-			require	=>
-			[
-				Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-				File["$tmp_dir/razor-server-repo-create.sh"]
-			],
-		}
-	}
-	elsif ($ensure == "absent")
-	{
-		file
-		{ "$tmp_dir/razor-server-repo-create.sh":
-			ensure	=> $ensure,
-		}
-
-		exec
-		{ "razor::server::repo::delete":
-			command	=> "$razor delete-repo --name $repo_name",
-			onlyif	=> "$razor repo | $grep '^| $repo_name |'",
-			require	=> Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-		}
-	}
+  if ($ensure == 'present' or $ensure == present)
+  {
+    exec
+    { "razor::server::repo::create::${name}":
+      command => "${razor} create-repo ${_args} --name ${repo_name} --task ${task}",
+      unless  => "${razor} repos | ${grep} '^| ${repo_name} |'",
+      require => Class[['::razor::server', '::razor::config']],
+    }
+  }
+  elsif ($ensure == 'absent' or $ensure == absent)
+  {
+    exec
+    { "razor::server::repo::delete::${name}":
+      command => "${razor} delete-repo --name ${repo_name}",
+      onlyif  => "${razor} repo | ${grep} '^| ${repo_name} |'",
+      require => Class[['::razor::server', '::razor::config']],
+    }
+  }
 }

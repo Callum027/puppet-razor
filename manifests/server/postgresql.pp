@@ -37,49 +37,67 @@
 #
 class razor::server::postgresql
 (
-	$ensure				= "present",
+  $ensure = 'present',
+  $export = false,
 
-	$razor_admin			= $razor::params::razor_admin,
-
-	$postgresql_user		= $razor::params::postgresql_user,
-	$postgresql_password		= $razor::params::postgresql_password,
-
-	$postgresql_development_db	= $razor::params::postgresql_development_db,
-	$postgresql_test_db		= $razor::params::postgresql_test_db,
-	$postgresql_production_db	= $razor::params::postgresql_production_db
-) inherits razor::params
+  $db       = 'razor',
+  $user     = 'razor',
+  $password = 'mypass',
+)
 {
-	class
-	{ 'postgresql::server':
-		ensure		=> $ensure,
-		ipv4acls	=> [ 'host all all 127.0.0.1/32 md5' ],
-	}
+  if ($export == true)
+  {
+    if ($ensure == 'present' or ensure == present)
+    {
+      @@::postgresql::server::export
+      { $::fqdn:
+        db       => $db,
+        user     => $user,
+        password => $password,
+      }
+    }
 
-	if ($ensure == "present")
-	{
-		postgresql::server::role
-		{ $postgresql_user:
-			password_hash	=> postgresql_password($postgresql_user, $postgresql_password),
-		}
+    if (!(defined(Class['::postgresql::server'])))
+    {
+      class
+      { '::postgresql::server':
+        ensure                     => $ensure,
+        ip_mask_deny_postgres_user => '0.0.0.0/32',
+        ip_mask_allow_all_users    => '0.0.0.0/0',
+        listen_addresses           => '*',
+        ipv4acls                   =>
+        [
+          'host all all 127.0.0.1/32 md5',
+          'hostssl all all 0.0.0.0/0 md5'
+        ],
+      }
 
-		# Create the databases which Razor uses to store information about the
-		# development, testing and production provisioning environments.
-		exec
-		{ "razor::server::postgresql::mirage_database_development":
-			command	=> "$razor_admin -e development migrate-database",
-			require	=> Class["razor::server::config"],
-		}
+      contain ::postgresql::server
+    }
+  }
+  else
+  {
+    if (!(defined(Class['::postgresql::server'])))
+    {
+      class
+      { '::postgresql::server':
+        ensure   => $ensure,
+        ipv4acls => ['host all all 127.0.0.1/32 md5'],
+      }
 
-		exec
-		{ "razor::server::postgresql::mirage_database_test":
-			command	=> "$razor_admin -e test migrate-database",
-			require	=> Class["razor::server::config"],
-		}
+      contain ::postgresql::server
+    }
+  }
 
-		exec
-		{ "razor::server::postgresql::mirage_database_production":
-			command	=> "$razor_admin -e production migrate-database",
-			require	=> Class["razor::server::config"],
-		}
-	}
+
+
+  if ($ensure == 'present' or ensure == present)
+  {
+    ::postgresql::server::db
+    { $db:
+      ensure   => $ensure,
+      user     => $user,
+      password => postgresql_password($user, $password),
+    }
+  }
 }

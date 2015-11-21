@@ -37,75 +37,47 @@
 #
 define razor::server::broker
 (
-	$ensure		= "present",
+  $broker_type,
+  $broker_name   = $name,
+  $configuration = undef,
 
-	$broker_name	= $name,
-	$broker_type,
+  $ensure = 'present',
+  $args   = undef, # Defined in body
 
-	$configuration	= undef,
-
-	$grep		= undef,
-	$razor		= undef,
-	$rm		= undef,
-
-	$tmp_dir	= undef
+  # razor::params default values.
+  $grep  = $::razor::params::grep,
+  $razor = $::razor::params::razor,
 )
 {
-	require razor::params
+  if ($args != undef)
+  {
+    $_args = $args
+  }
+  elsif ($configuration != undef)
+  {
+    $_args = "--configuration '${configuration}'"
+  }
+  else
+  {
+    $_args = ''
+  }
 
-	if ($grep == undef)
-	{
-		$razor = $razor::params::grep
-	}
-
-	if ($razor == undef)
-	{
-		$razor = $razor::params::razor
-	}
-
-	if ($rm == undef)
-	{
-		$rm = $razor::params::rm
-	}
-
-	if ($tmp_dir == undef)
-	{
-		$tmp_dir = $razor::params::tmp_dir
-	}
-
-	if ($ensure == "present")
-	{
-		file
-		{ "$tmp_dir/razor-server-broker-create.sh":
-			owner	=> root,
-			group	=> root,
-			mode	=> 755,
-			content	=> template("razor/razor-server-broker-create.sh.erb"),
-		}
-
-		exec
-		{ "razor::server::broker:create":
-			command	=> "$tmp_dir/razor-server-broker-create.sh",
-			unless	=> "$razor brokers | $grep '^| $broker_name |'",
-			require	=>
-			[
-				Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-				File["$tmp_dir/razor-server-broker-create.sh"]
-			],
-		}
-	}
-	elsif ($ensure == "absent")
-	{
-		file
-		{ "$tmp_dir/razor-server-broker-create.sh":
-			ensure	=> $ensure,
-		}
-
-		exec
-		{ "razor::server::broker::delete":
-			command	=> "$razor delete-broker --name $broker_name",
-			onlyif	=> "$razor broker | $grep '^| $broker_name |'",
-			require	=> Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-		}
-	}
+  if ($ensure == 'present' or $ensure == present)
+  {
+    exec
+    { "razor::server::broker::create::${name}":
+      command => "${razor} create-broker ${_args} --name ${broker_name} --broker-type ${broker_type}",
+      unless  => "${razor} brokers | ${grep} '^| ${broker_name} |'",
+      require => Class[['::razor::server', '::razor::config']],
+    }
+  }
+  elsif ($ensure == 'absent' or $ensure == absent)
+  {
+    exec
+    { "razor::server::broker::delete::${name}":
+      command => "${razor} delete-broker --name ${broker_name}",
+      onlyif  => "${razor} broker | ${grep} '^| ${broker_name} |'",
+      require => Class[['::razor::server', '::razor::config']],
+    }
+  }
 }

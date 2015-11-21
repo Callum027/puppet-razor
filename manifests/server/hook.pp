@@ -37,78 +37,42 @@
 #
 define razor::server::hook
 (
-	$ensure		= "present",
+  $hook_type,
+  $configuration,
+  $hook_name = $name,
 
-	$hook_name	= $name,
+  $ensure = 'present',
 
-	$hook_type,
-	$configuration,
-
-	$grep		= undef,
-	$razor		= undef,
-	$rm		= undef,
-
-	$tmp_dir	= undef
+  # razor::params default values.
+  $grep  = $::razor::params::grep,
+  $razor = $::razor::params::razor,
 )
 {
-	require razor::params
+  $configuration_args = join($configuration, " --configuration ")
 
-	# TODO: Change this to build configuration.yaml and the event files
-	# directly from templates.
+  if ($ensure == 'present')
+  {
+    exec
+    { "razor::server::hook::create::${name}":
+      command => "${razor} create-hook --name ${hook_name} --hook-type ${hook_type} --configuration ${configuration_args}",
+      unless  => "${razor} hooks | ${grep} '^| ${repo_name} |'",
+      require => Class[['::razor::server', '::razor::config']],
+    }
 
-	if ($grep == undef)
-	{
-		$razor = $razor::params::grep
-	}
-
-	if ($razor == undef)
-	{
-		$razor = $razor::params::razor
-	}
-
-	if ($rm == undef)
-	{
-		$rm = $razor::params::rm
-	}
-
-	if ($tmp_dir == undef)
-	{
-		$tmp_dir = $razor::params::tmp_dir
-	}
-
-	if ($ensure == "present")
-	{
-		file
-		{ "$tmp_dir/razor-server-hook-create.sh":
-			owner	=> root,
-			group	=> root,
-			mode	=> 755,
-			content	=> template("razor/razor-server-hook-create.sh.erb"),
-		}
-
-		exec
-		{ "razor::server::hook:create":
-			command	=> "$tmp_dir/razor-server-hook-create.sh",
-			unless	=> "$razor hooks | $grep '^| $repo_name |'",
-			require	=>
-			[
-				Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-				File["$tmp_dir/razor-server-hook-create.sh"]
-			],
-		}
-	}
-	elsif ($ensure == "absent")
-	{
-		file
-		{ "$tmp_dir/razor-server-hook-create.sh":
-			ensure	=> $ensure,
-		}
-
-		exec
-		{ "razor::server::hook::delete":
-			command	=> "$razor delete-hook --name $hook_name",
-			onlyif	=> "$razor hook | $grep '^| $hook_name |'",
-			require	=> Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-		}
-	}
+    exec
+    { "razor::server::hook::update_configuration::${name}":
+      command => "${razor} update-hook-configuration --name ${hook_name} --hook-type ${hook_type} --configuration ${configuration_args}",
+      unless  => "${razor} hooks | ${grep} '^| ${repo_name} |'",
+      require => Class[['::razor::server', '::razor::config']],
+    }
+  }
+  elsif ($ensure == 'absent')
+  {
+    exec
+    { 'razor::server::hook::delete':
+      command => "${razor} delete-hook --name ${hook_name}",
+      onlyif  => "${razor} hook | ${grep} '^| ${hook_name} |'",
+      require => Class[['::razor::server', '::razor::config']],
+    }
+  }
 }

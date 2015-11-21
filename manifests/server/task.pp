@@ -37,151 +37,82 @@
 #
 define razor::server::task
 (
-	$ensure			= "present",
+  # Policy options.
+  $boot_sequence,
+  $os_version,
+  $task_name    = $name,
+  $os           = undef,
+  $description  = undef,
+  $base         = undef,
+  $template_dir = undef,
 
-	# Policy options.
-	$task_name		= $name,
-	$description		= undef,
-	$os			= undef,
-	$os_version,
-	$base			= undef,
-	$boot_sequence,
-	$templates		= undef,
+  # Resource options.
+  $ensure = 'present',
 
-	$cat			= undef,
-	$rm			= undef,
-	$test			= undef,
+  # File options.
+  $task_path          = 'tasks',
+  $task_path_relative = true,
 
-	$tmp_dir		= undef,
-	$razor_server_data_dir	= undef,
-	$task_path		= undef
+  $metadata_yaml_mode  = '0444',
+  $task_directory_mode = '0555',
+  $task_path_mode      = '0555',
+
+  # razor::params default values.
+  $razor_user      = $::razor::params::razor_user,
+  $razor_group     = $::razor::params::razor_group,
+  $server_data_dir = $::razor::params::server_data_dir,
 )
 {
-	require razor::params
+  if ($ensure == 'present' or $ensure == present)
+  {
+    $directory_ensure = 'directory'
+    $file_ensure      = 'file'
+  }
+  else
+  {
+    $directory_ensure = $ensure
+    $file_ensure      = $ensure
+  }
 
-	if ($cat == undef)
-	{
-		$cat = $razor::params::cat
-	}
+  if ($task_path_relative == true)
+  {
+    $task_path_full = "${server_data_dir}/${task_path}"
+  }
+  else
+  {
+    $task_path_full = $task_path
+  }
 
-	if ($rm == undef)
-	{
-		$rm = $razor::params::rm
-	}
+  # Create the task directory, and copy the task templates into it.
+  if (!(defined(File[$task_path_full])))
+  {
+    file
+    { $task_path_full:
+      ensure  => $directory_ensure,
+      owner   => $razor_user,
+      group   => $razor_group,
+      mode    => $task_path_mode,
+    }
+  }
 
-	if ($test == undef)
-	{
-		$test = $razor::params::test
-	}
+  file
+  { "${task_path_full}/${task_name}.task":
+    ensure  => $directory_ensure,
+    owner   => $razor_user,
+    group   => $razor_group,
+    mode    => $task_directory_mode,
 
-	if ($tmp_dir == undef)
-	{
-		$tmp_dir = $razor::params::tmp_dir
-	}
+    recurse => 'remote',
+    source  => $template_dir,
+  }
 
-	if ($razor_server_data_dir == undef)
-	{
-		$razor_server_data_dir = $razor::params::razor_server_data_dir
-	}
-
-	if ($task_path == undef)
-	{
-		$task_path = $razor::params::config_yaml_all_task_path
-	}
-
-	if ($ensure == "present")
-	{
-		file
-		{ "$razor_server_data_dir/$task_path/$task_name.task":
-			ensure	=> "directory",
-			owner	=> "razor",
-			group	=> "razor",
-			mode	=> 755,
-		}
-	}
-	elsif ($ensure == "absent")
-	{
-		file
-		{ "$razor_server_data_dir/$task_path/$task_name.task":
-			ensure	=> $ensure,
-		}
-	}
-
-	# The metadata file for this task.
-	file
-	{ "$razor_server_data_dir/$task_path/$task_name.task/metadata.yaml":
-		ensure	=> $ensure,
-		owner	=> "razor",
-		group	=> "razor",
-		mode	=> 755,
-		content	=> template("razor/task/metadata.yaml.erb"),
-		require	=> File["$razor_server_data_dir/$task_path/$task_name.task"],
-	}
-
-	# Any templates that are used in the task metadata.
-	if ($templates != undef)
-	{
-		if ($ensure == "present")
-		{
-			file
-			{ "$tmp_dir/razor-server-task-templates-create.sh":
-				ensure	=> "present",
-				owner	=> root,
-				group	=> root,
-				mode	=> 700,
-				content	=> template("razor/task/template-create.sh.erb"),
-			}
-
-			file
-			{ "$tmp_dir/razor-server-task-templates-create.sh":
-				ensure	=> "absent",
-			}
-
-			exec
-			{ "razor::server::task::template_create":
-				command	=> "$tmp_dir/razor-server-task-templates-create.sh",
-				require	=>
-				[
-					File["$tmp_dir/razor-server-task-templates-create.sh"],
-					File["$razor_server_data_dir/$task_path/$task_name.task"]
-				],
-			}
-		}
-		else if ($ensure == "absent")
-		{
-			file
-			{ "$tmp_dir/razor-server-task-templates-create.sh":
-				ensure	=> "absent",
-			}
-
-			file
-			{ "$tmp_dir/razor-server-task-templates-delete.sh":
-				ensure	=> "present",
-				owner	=> root,
-				group	=> root,
-				mode	=> 700,
-				content	=> template("razor/task/template-delete.sh.erb"),
-			}
-
-			exec
-			{ "razor::server::task::template_delete":
-				command	=> "$tmp_dir/razor-server-task-templates-delete.sh",
-				require	=>
-				[
-					File["$tmp_dir/razor-server-task-templates-delete.sh"],
-					File["$razor_server_data_dir/$task_path/$task_name.task"]
-				],
-			}
-		}
-
-		file
-		{ "$razor_server_data_dir/$task_path/$task_name.task/${template_keys}.erb":
-			ensure	=> $ensure,
-			owner	=> "razor",
-			group	=> "razor",
-			mode	=> 755,
-			content	=> $template_values,
-			require	=> File["$razor_server_data_dir/$task_path/$task_name.task"],
-		}
-	]
+  # The metadata file for this task.
+  file
+  { "${task_path_full}/${task_name}.task/metadata.yaml":
+    ensure  => $file_ensure,
+    owner   => $razor_user,
+    group   => $razor_group,
+    mode    => $metadata_yaml_mode,
+    content => template('razor/metadata.yaml.erb'),
+  }
 }

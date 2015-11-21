@@ -34,94 +34,82 @@
 #
 class razor::params
 {
-	case $::osfamily
-	{
-		'Debian':
-		{
-			# Executable files.
-			$cat						= "/bin/cat"
-			$razor						= "/usr/sbin/razor"
-			$razor_admin					= "/usr/sbin/razor-admin"
-			$rm						= "/bin/rm"
-			$tar						= "/bin/tar"
-			$wget						= "/usr/bin/wget"
+  case $::osfamily
+  {
+    'Debian':
+    {
+      # Executable files.
+      $cat         = '/bin/cat'
+      $razor       = '/usr/sbin/razor'
+      $razor_admin = '/usr/sbin/razor-admin'
+      $rm          = '/bin/rm'
+      $tar         = '/bin/tar'
 
-			# Working directories.
-			$tmp_dir					= "/tmp"
+      # Working directories.
+      $tmp_dir = '/tmp'
 
-			# Razor Client configuration variables.
-			$razor_client_packages				= "razor-client"
+      # Razor Client configuration variables.
+      $client_packages = 'razor-client'
 
-			# Razor Server configuration variables.
-			$razor_server_packages				= "razor-server"
-			$razor_server_services				= "razor-server"
+      # Razor Server configuration variables.
+      $server_packages = 'razor-server'
+      $server_services = 'razor-server'
 
-			$razor_server_config_dir			= "/etc/razor"
-			$razor_server_data_dir				= "/var/lib/razor"
+      $server_config_dir = '/etc/razor'
+      $server_data_dir   = '/var/lib/razor'
 
-			$razor_user					= "razor"
-			$razor_group					= "razor"
+      $razor_user  = 'razor'
+      $razor_group = 'razor'
 
-			# PostgreSQL configuration variables.
-			$postgresql_user				= "razor"
-			$postgresql_password				= $postgresql_user
+      # config.yaml options.
+      $config_yaml_all_auth_enabled      = false
+      $config_yaml_all_auth_config      = 'shiro.ini'
 
-			$postgresql_development_db			= "razor_dev"
-			$postgresql_test_db				= "razor_test"
-			$postgresql_production_db			= "razor_prd"
+      $config_yaml_all_microkernel_debug_level  = 'debug'
+      $config_yaml_all_microkernel_kernel_args  = ''
+      $config_yaml_all_microkernel_extension_zip  = undef
 
-			# Microkernel configuration options.
-			$microkernel_url				= "http://links.puppetlabs.com/razor-microkernel-latest.tar"
+      $config_yaml_all_secure_api      = false
+      $config_yaml_all_protect_new_nodes    = false
+      $config_yaml_all_match_nodes_on      = [ 'mac' ]
+      $config_yaml_all_checkin_interval    = 15
+      $config_yaml_all_task_path      = 'tasks'
+      $config_yaml_all_repo_store_root    = "${razor_server_data_dir}/repo-store"
+      $config_yaml_all_broker_path      = 'brokers'
+      $config_yaml_all_hook_path      = 'hooks'
 
-			# config.yaml options.
-			$config_yaml_all_auth_enabled			= false
-			$config_yaml_all_auth_config			= "shiro.ini"
+      $config_yaml_all_facts_blacklist    =
+      [
+        'domain',
+        'filesystems',
+        'fqdn',
+        'hostname',
+        'id',
+        '/kernel.*/',
+        'memoryfree',
+        'memorysize',
+        'memorytotal',
+        '/operatingsystem.*/',
+        'osfamily',
+        'path',
+        'ps',
+        'rubysitedir',
+        'rubyversion',
+        'selinux',
+        'sshdsakey',
+        '/sshfp_[dr]sa/',
+        'sshrsakey',
+        '/swap.*/',
+        'timezone',
+        '/uptime.*/'
+      ]
+    }
 
-			$config_yaml_all_microkernel_debug_level	= "debug"
-			$config_yaml_all_microkernel_kernel_args	= ""
-			$config_yaml_all_microkernel_extension_zip	= undef
+    # RedHat support will come at a later time!
 
-			$config_yaml_all_secure_api			= false
-			$config_yaml_all_protect_new_nodes		= false
-			$config_yaml_all_match_nodes_on			= [ "mac" ]
-			$config_yaml_all_checkin_interval		= 15
-			$config_yaml_all_task_path			= "tasks"
-			$config_yaml_all_repo_store_root		= "$razor_server_data_dir/repo-store"
-			$config_yaml_all_broker_path			= "brokers"
-			$config_yaml_all_hook_path			= "hooks"
-
-			$config_yaml_all_facts_blacklist		=
-			[
-				"domain",
-				"filesystems",
-				"fqdn",
-				"hostname",
-				"id",
-				"/kernel.*/",
-				"memoryfree",
-				"memorysize",
-				"memorytotal",
-				"/operatingsystem.*/",
-				"osfamily",
-				"path",
-				"ps",
-				"rubysitedir",
-				"rubyversion",
-				"selinux",
-				"sshdsakey",
-				"/sshfp_[dr]sa/",
-				"sshrsakey",
-				"/swap.*/",
-				"timezone",
-				"/uptime.*/"
-			]
-		}
-
-		# RedHat support will come at a later time!
-
-		default:
-		{
-			fail("Sorry, but the koha module does not support the $::osfamily OS family at this time")
-		}
-	}
+    default:
+    {
+      fail("Sorry, but the koha module does not support the ${::osfamily} OS family at this time")
+    }
+  }
 }

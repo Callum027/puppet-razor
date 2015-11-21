@@ -37,43 +37,32 @@
 #
 define razor::server::tag
 (
-	$ensure		= "present",
+  $rule,
+  $tag_name = $name,
 
-	$tag_name	= $name,
-	$rule,
+  $ensure = 'present',
 
-	$grep		= undef,
-	$razor		= undef,
+  # razor::params default values.
+  $grep  = $::razor::params::grep,
+  $razor = $::razor::params::razor,
 )
 {
-	require razor::params
-
-	if ($grep == undef)
-	{
-		$razor = $razor::params::grep
-	}
-
-	if ($razor == undef)
-	{
-		$razor = $razor::params::razor
-	}
-
-	if ($ensure == "present")
-	{
-		exec
-		{ "razor::server::tag:create":
-			command	=> "$razor create-tag --name $tag_name --rule '$rule'",
-			unless	=> "$razor tags | $grep '^| $tag_name |'",
-			require	=> Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-		}
-	}
-	elsif ($ensure == "absent")
-	{
-		exec
-		{ "razor::server::tag::delete":
-			command	=> "$razor delete-tag --name $tag_name",
-			onlyif	=> "$razor tag | $grep '^| $tag_name |'",
-			require	=> Class[ [ "razor::client", "razor::install", "razor::postgresql", "razor::config", "razor::microkernel" ] ],
-		}
-	}
+  if ($ensure == 'present' or $ensure == present)
+  {
+    exec
+    { "razor::server::tag::create::${name}":
+      command => "${razor} create-tag --name ${tag_name} --rule '${rule}'",
+      unless  => "${razor} tags | ${grep} '^| ${tag_name} |'",
+      require => Class[['::razor::server', '::razor::config']],
+    }
+  }
+  elsif ($ensure == 'absent' or $ensure == absent)
+  {
+    exec
+    { "razor::server::tag::delete::${name}":
+      command => "${razor} delete-tag --name ${tag_name}",
+      onlyif  => "${razor} tag | ${grep} '^| ${tag_name} |'",
+      require => Class[['::razor::server', '::razor::config']],
+    }
+  }
 }

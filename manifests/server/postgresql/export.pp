@@ -35,34 +35,4 @@
 #
 # Copyright 2015 Your name here, unless otherwise noted.
 #
-class razor::server::config
-(
-  $ensure = 'present',
-
-  $dir  = $razor::params::config_dir,
-  $file = 'config.yaml',
-  $path = undef, # Defined in body
-
-  $owner = 'root',
-  $group = 'root',
-  $mode  = '0444',
-) inherits razor::params
-{
-  $_path = pick($path, "${dir}/${file}")
-
-  ::concat
-  { 'razor::server::config':
-    ensure => $ensure,
-    path   => $_path,
-    owner  => $owner,
-    group  => $group,
-    mode   => $mode,
-  }
-
-  ::concat::fragment
-  { 'razor::server::config::header',
-    target  => 'razor::server::config',
-    order   => '01',
-    content => '---\n# This file is managed by Puppet.\n# Any local modifications will be overwritten.\n\n',
-  }
-}
+define razor::server::postgresql::export($db, $user, $password, $hostname = $name) {}

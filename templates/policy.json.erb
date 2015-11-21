@@ -1,0 +1,25 @@
+{
+<% if @enabled -%>
+  "enabled": <%= @enabled %>,
+<% end -%>
+<% if @max_count -%>
+  "max_count": <%= @max_count %>,
+<% end -%>
+<% if @before -%>
+  "before": <%= @before %>,
+<% end -%>
+<% if @after -%>
+  "after": <%= @after %>,
+<% end -%>
+<% if @tags -%>
+  "tags": <%= @tags %>,
+<% end -%>
+<% if @node_metadata -%>
+  "node_metadata": <%= @node_metadata %>,
+<% end -%>
+  "name": <%= @policy_name %>,
+  "hostname": <%= @hostname %>,
+  "root_password": <%= @root_password %>,
+  "broker": <%= @broker %>,
+  "task": <%= @task %>
+}

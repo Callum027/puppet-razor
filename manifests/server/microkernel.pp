@@ -37,49 +37,90 @@
 #
 class razor::server::microkernel
 (
-	$ensure					= "present",
-	$tmp_dir				= $razor::params::tmp_dir,
-	$microkernel_url			= $razor::params::microkernel_url,
-	$config_yaml_all_repo_store_root	= $config::params::config_yaml_all_repo_store_root
+  $ensure = 'present',
+
+  $url       = 'http://links.puppetlabs.com/razor-microkernel-latest.tar',
+  $extension = 'tar',
+
+  $repo_store_root         = undef, # Defined in body
+  $collect_repo_store_root = true,
+
+  $initrd_mode          = '0555',
+  $repo_store_root_mode = '0555',
+  $vmlinuz_mode         = '0555',
+
+  # razor::params default values.
+  $razor_user  = $::razor::params::razor_user,
+  $razor_group = $::razor::params::razor_group,
+  $tmp_dir     = $::razor::params::tmp_dir,
 ) inherits razor::params
 {
-	if ($ensure == "present")
-	{
-		exec
-		{ "razor::server::microkernel::download_microkernel":
-			command	=> "$wget -r -t 5 $microkernel_url -O $tmp_dir/microkernel.tar",
-			creates	=> "$tmp_dir/microkernel.tar",
-			unless	=> "$test -f \"$config_yaml_all_repo_store_root/initrd0.img\" -a -f \"$config_yaml_all_repo_store_root/vmlinuz\"",
-		}
+  if ($repo_store_root == undef and defined(Class['::razor::server::config::default']))
+  {
+    $_repo_store_root = $::razor::server::config::default::_repo_store_root
+  }
+  else
+  {
+     $_repo_store_root = $repo_store_root
+  }
 
-		exec
-		{ "razor::server::microkernel::extract_microkernel":
-			command	=> "$tar --overwrite -xf $tmp_dir/microkernel.tar $config_yaml_all_repo_store_root",
-			creates	=> "$tmp_dir/microkernel.tar",
-			unless	=> "$test -f \"$config_yaml_all_repo_store_root/initrd0.img\" -a -f \"$config_yaml_all_repo_store_root/vmlinuz0\"",
-			require	=> Exec["razor::server::microkernel::download_microkernel"],
-		}
+  if ($ensure == 'present' or ensure == present)
+  {
+    $directory_ensure = 'directory'
+    $file_ensure = 'file'
+  }
+  else
+  {
+    $directory_ensure = $ensure
+    $file_ensure = $ensure
+  }
 
-		file
-		{ "$tmp_dir/microkernel.tar":
-			ensure	=> "absent",
-			require	=> Exec[["razor::server::microkernel::download_microkernel", "razor::server::microkernel::extract_microkernel"]], 
-		}
-	}
-	else
-	{
-		file
-		{ "$tmp_dir/microkernel.tar":
-			ensure	=> "absent",
-		}
-	}
+  # Download and extract the latest Razor microkernel.
+  archive
+  { 'razor-microkernel':
+    ensure           => $ensure,
 
-	file
-	{ [ "$config_yaml_all_repo_store_root/initrd0.img", "$config_yaml_all_repo_store_root/vmlinuz0" ]:
-		ensure	=> $ensure,
-		owner	=> $razor_user,
-		group	=> $razor_group,
-		mode	=> 755,
-		require	=> Exec[["razor::server::microkernel::download_microkernel", "razor::server::microkernel::extract_microkernel"]],
-	}
+    target           => $tmp_dir,
+    checksum         => false,
+
+    url              => $url,
+    extension        => $extension,
+    follow_redirects => true,
+  }
+
+  # Place the initial ramdisk and kernel images in the correct location.
+  if (!(defined(File[$_repo_store_root])))
+  {
+    file
+    { $_repo_store_root:
+      ensure => $directory_ensure,
+      owner  => $razor_user,
+      group  => $razor_group,
+      mode   => $repo_store_root_mode,
+    }
+  }
+
+  file
+  { "${_repo_store_root}/initrd0.img":
+    ensure  => $file_ensure,
+    source  => "${tmp_dir}/razor-microkernel/initrd0.img",
+
+    owner   => $razor_user,
+    group   => $razor_group,
+    mode    => $initrd_mode,
+
+    require => Archive['razor-microkernel'],
+  }
+
+  file
+  { "${_repo_store_root}/vmlinuz0":
+    ensure  => $file_ensure,
+    source  => "${tmp_dir}/razor-microkernel/vmlinuz0",
+
+    owner   => $razor_user,
+    group   => $razor_group,
+    mode    => $vmlinuz_mode,
+
+    require => Archive['razor-microkernel'],
+  }
 }
