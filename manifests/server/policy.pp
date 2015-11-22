@@ -40,8 +40,8 @@ define razor::server::policy
   # Required policy options.
   $hostname,
   $root_password,
+  $repo,
   $broker,
-  $task,
   $policy_name = $name,
 
   # Optional policy options.
@@ -50,12 +50,13 @@ define razor::server::policy
   $before        = undef,
   $after         = undef,
   $tags          = undef,
-  $repo          = undef,
+  $task          = undef,
   $node_metadata = undef,
 
   # Dependency options, if optional arguments are set.
-  $require_tags = true,
-  $require_repo = true,
+  $require_repo   = true,
+  $require_broker = true,
+  $require_tags   = true,
 
   $ensure   = 'present',
   $tmp_file = undef, # Defined in body
@@ -67,6 +68,13 @@ define razor::server::policy
   $tmp_dir    = $::razor::params::tmp_dir,
 )
 {
+  validate_string($policy_name, $hostname, $root_password)
+
+  if ($before != undef and $after != undef)
+  {
+    fail("only one of before and after are allowed to be specified")
+  }
+
   if ($ensure == 'present' or $ensure == present)
   {
     $_tmp_file = pick($tmp_file, "${tmp_dir}/razor_policy_${name}.json")
@@ -94,14 +102,19 @@ define razor::server::policy
       ],
     }
 
+    if (require_repo == true)
+    {
+      Razor::server::repo[$repo] -> Exec["razor::server::policy::create::${name}"]
+    }
+
+    if (require_repo == true)
+    {
+      Razor::server::broker[$broker] -> Exec["razor::server::policy::create::${name}"]
+    }
+
     if ($tags != undef and require_tags == true)
     {
       Razor::server::tag[$tags] -> Exec["razor::server::policy::create::${name}"]
-    }
-
-    if ($repo != undef and require_repo == true)
-    {
-      Razor::server::repo[$repo] -> Exec["razor::server::policy::create::${name}"]
     }
 
     file
