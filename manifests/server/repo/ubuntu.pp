@@ -48,7 +48,7 @@ define razor::server::repo::ubuntu
   validate_re($flavor, ['^desktop$', '^server$'], "valid values for flavor are 'desktop' and 'server'")
   validate_re($arch, ['^i386$', '^amd64$'], "valid values for arch are 'i386' and 'amd64'")
 
-  $_iso_url = pick($iso_url, "http://releases.ubuntu.com/${release}/ubuntu-${release}-${flavor}-${arch}.iso")
+  $_iso_url = pick($iso_url, "http://cdimage.ubuntu.com/${release}/releases/ubuntu-${release}-${flavor}-${arch}.iso")
 
   ::razor::server::repo
   { $name:
