@@ -105,14 +105,14 @@
       <% scope.function_fail(["Invalid value type for option facts['blacklist'], should be array of strings"]) -%>
     <% end -%>
   <% end -%>
-  <% if @facts['match_on'] -%>
-    <% if @facts['match_on'].is_a?(Array) -%>
-    match_on:
-      <% @facts['match_on'].each do |v| -%>
+  <% if @facts['match_nodes_on'] -%>
+    <% if @facts['match_nodes_on'].is_a?(Array) -%>
+    match_nodes_on:
+      <% @facts['match_nodes_on'].each do |v| -%>
       - <%= v %>
       <% end -%>
     <% else -%>
-      <% scope.function_fail(["Invalid value type for option facts['match_on'], should be array of strings"]) -%>
+      <% scope.function_fail(["Invalid value type for option facts['match_nodes_on'], should be array of strings"]) -%>
     <% end -%>
   <% end -%>
 <% end -%>
