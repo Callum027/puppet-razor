@@ -54,7 +54,7 @@ class razor::server::config::default
   $store_hook_input  = false,
   $store_hook_output = false,
 
-  $match_nodes_on = undef,
+  $match_nodes_on = ['mac'],
 
   $checkin_interval = 15,
 

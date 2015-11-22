@@ -5,53 +5,59 @@
 
 <% if @auth -%>
   auth:
-<% if @auth[:enabled] -%>
-<% if @auth[:enabled] == true or @auth[:enabled] == false -%>
-    enabled: <%= @auth[:enabled] %>
-<% else -%>
-<% scope.function_fail(["Invalid value type for option auth['enabled'], should be boolean"]) -%>
-<% end -%>
-<% end -%>
-<% if @auth[:config] -%>
-<% if File.directory?(@auth[:config]) or File.file?(@auth[:config]) -%>
-    config: <%= @auth[:config] %>
-<% else -%>
-<% scope.function_fail(["Invalid value type for option auth['config'], should be file name/path"]) -%>
-<% end -%>
-<% end -%>
+  <% if @auth['enabled'] == true or @auth['enabled'] == false -%>
+    enabled: <%= @auth['enabled'] %>
+  <% else -%>
+    <% scope.function_fail(["Invalid value type for option auth['enabled'], should be boolean"]) -%>
+  <% end -%>
+  <% if @auth['config'] -%>
+    <% if File.directory?(@auth['config']) or File.file?(@auth['config']) -%>
+  config: <%= @auth['config'] %>
+    <% else -%>
+      <% scope.function_fail(["Invalid value type for option auth['config'], should be file name/path"]) -%>
+    <% end -%>
+  <% end -%>
 
 <% end -%>
 <% if @microkernel -%>
   microkernel:
-<% if @microkernel[:debug_level] -%>
-<% if @microkernel[:debug_level] == 'debug' -%>
-    debug_level: <%= @microkernel[:debug_level] %>
-<% else -%>
-<% scope.function_fail(["Invalid value type for option microkernel['debug_level'], valid values are 'debug'"]) -%>
-<% end -%>
-<% end -%>
-<% if @microkernel[:kernel_args] -%>
-<% if @microkernel[:kernel_args].is_a?(String) -%>
-    kernel_args: <%= @microkernel[:kernel_args] %>
-<% else -%>
-<% scope.function_fail(["Invalid value type for option microkernel['kernel_args'], should be string"]) -%>
-<% end -%>
-<% end -%>
-<% if @microkernel[:extension_zip] -%>
-<% if File.file?(@microkernel[:extension_zip]) and File.extname(@microkernel[:extension_zip]) == ".zip" -%>
-    extension-zip: <%= @auth[:config] %>
-<% else -%>
-<% scope.function_fail(["Invalid value type for option microkernel['extension_zip'], should be filepath leading to a zip file"]) -%>
-<% end -%>
-<% end -%>
+  <% if @microkernel['debug_level'] -%>
+    <% if @microkernel['debug_level'] == 'debug' -%>
+    debug_level: <%= @microkernel['debug_level'] %>
+    <% else -%>
+      <% scope.function_fail(["Invalid value type for option microkernel['debug_level'], valid values are 'debug'"]) -%>
+    <% end -%>
+  <% end -%>
+  <% if @microkernel['kernel_args'] -%>
+    <% if @microkernel['kernel_args'].is_a?(String) -%>
+    kernel_args: <%= @microkernel['kernel_args'] %>
+    <% else -%>
+      <% scope.function_fail(["Invalid value type for option microkernel['kernel_args'], should be string"]) -%>
+    <% end -%>
+  <% end -%>
+  <% if @microkernel['extension_zip'] -%>
+    <% if File.file?(@microkernel['extension_zip']) and File.extname(@microkernel['extension_zip']) == ".zip" -%>
+    extension-zip: <%= @auth['extension_zip'] %>
+    <% else -%>
+      <% scope.function_fail(["Invalid value type for option microkernel['extension_zip'], should be filepath leading to a zip file"]) -%>
+    <% end -%>
+  <% end -%>
 
 <% end -%>
-<% if @secure_api -%>
+<% if @secure_api == true or @secure_api == false -%>
   secure_api: <%= @secure_api %>
 
 <% end -%>
-<% if @protect_new_nodes -%>
+<% if @protect_new_nodes == true or @protect_new_nodes == false -%>
   protect_new_nodes: <%= @protect_new_nodes %>
+
+<% end -%>
+<% if @store_hook_input == true or @store_hook_input == false -%>
+  store_hook_input: <%= @store_hook_input %>
+
+<% end -%>
+<% if @store_hook_output == true or @store_hook_output == false -%>
+  store_hook_output:: <%= @store_hook_output %>
 
 <% end -%>
 <% if @match_nodes_on -%>
@@ -88,25 +94,25 @@
 <% end -%>
 <% if @facts -%>
   facts:
-<% if @facts[:blacklist] -%>
-<% if @facts[:blacklist].is_a?(Array) -%>
+  <% if @facts['blacklist'] -%>
+    <% if @facts['blacklist'].is_a?(Array) -%>
     blacklist:
-<% @facts[:blacklist].each do |v| -%>
+      <% @facts['blacklist'].each do |v| -%>
       - <%= v %>
-<% end -%>
+      <% end -%>
 
-<% else -%>
-<% scope.function_fail(["Invalid value type for option facts['blacklist'], should be array of strings"]) -%>
-<% end -%>
-<% end -%>
-<% if @facts[:match_on] -%>
-<% if @facts[:match_on].is_a?(Array) -%>
+    <% else -%>
+      <% scope.function_fail(["Invalid value type for option facts['blacklist'], should be array of strings"]) -%>
+    <% end -%>
+  <% end -%>
+  <% if @facts['match_on'] -%>
+    <% if @facts['match_on'].is_a?(Array) -%>
     match_on:
-<% @facts[:match_on].each do |v| -%>
+      <% @facts['match_on'].each do |v| -%>
       - <%= v %>
-<% end -%>
-<% else -%>
-<% scope.function_fail(["Invalid value type for option facts['match_on'], should be array of strings"]) -%>
-<% end -%>
-<% end -%>
+      <% end -%>
+    <% else -%>
+      <% scope.function_fail(["Invalid value type for option facts['match_on'], should be array of strings"]) -%>
+    <% end -%>
+  <% end -%>
 <% end -%>

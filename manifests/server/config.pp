@@ -39,7 +39,7 @@ class razor::server::config
 (
   $ensure = 'present',
 
-  $dir  = $razor::params::config_dir,
+  $dir  = $::razor::params::server_config_dir,
   $file = 'config.yaml',
   $path = undef, # Defined in body
 
@@ -65,6 +65,6 @@ class razor::server::config
   { 'razor::server::config::header':
     target  => 'razor::server::config',
     order   => '01',
-    content => '---\n# This file is managed by Puppet.\n# Any local modifications will be overwritten.\n\n',
+    content => "---\n# This file is managed by Puppet.\n# Any local modifications will be overwritten.\n\n",
   }
 }
