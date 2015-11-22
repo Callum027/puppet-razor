@@ -93,28 +93,22 @@ define razor::server::policy
     { "razor::server::policy::create::${name}":
       command => "${razor} --url ${client_url} create-policy --json ${_tmp_file}",
       unless  => "${razor} --url ${client_url} policies | ${grep} '^| ${policy_name} |'",
-      require =>
-      [
-        Class['::razor::server::service'],
-        File["razor::server::policy::tmp_file::create::${name}"],
-        Razor::server::broker[$broker],
-        Razor::server::task[$task],
-      ],
+      require => [Class['::razor::server::service'], File["razor::server::policy::tmp_file::create::${name}"]],
     }
 
     if (require_repo == true)
     {
-      Razor::server::repo[$repo] -> Exec["razor::server::policy::create::${name}"]
+      ::Razor::server::repo[$repo] -> Exec["razor::server::policy::create::${name}"]
     }
 
     if (require_broker == true)
     {
-      Razor::server::broker[$broker] -> Exec["razor::server::policy::create::${name}"]
+      ::Razor::server::broker[$broker] -> Exec["razor::server::policy::create::${name}"]
     }
 
     if ($tags != undef and require_tags == true)
     {
-      Razor::server::tag[$tags] -> Exec["razor::server::policy::create::${name}"]
+      ::Razor::server::tag[$tags] -> Exec["razor::server::policy::create::${name}"]
     }
 
     file
