@@ -48,7 +48,8 @@ class razor::server::tftp
   $nic_max = undef,
 
   # razor::params default values.
-  $tmp_dir = $::razor::params::tmp_dir,
+  $client_url = $::razor::params::client_url,
+  $tmp_dir    = $::razor::params::tmp_dir,
 )
 {
   if ($ensure == 'present' or ensure == present)
