@@ -41,10 +41,11 @@ define razor::server::microkernel
   $ensure      = 'present',
 
   # Public arguments.
-  $source       = $microkernel_source,
+  $source               = $microkernel_source,
+  $repo_store_root      = undef, # Defined in body
+  $repo_microkernel_dir = 'microkernel',
 
   # Private arguments.
-  $repo_store_root = undef, # Defined in body
 
   $file   = 'microkernel.tar',
   $dir    = 'microkernel',
@@ -91,7 +92,12 @@ define razor::server::microkernel
 
   # Place the initial ramdisk and kernel images in the correct location.
   file
-  { "${_repo_store_root}/initrd0.img":
+  { "${_repo_store_root}/${repo_microkernel_dir}":
+    ensure  => $directory_ensure,
+  }
+
+  file
+  { "${_repo_store_root}/${repo_microkernel_dir}/initrd0.img":
     ensure  => $file_ensure,
     source  => "${tmp_dir}/${dir}/initrd0.img",
 
@@ -99,11 +105,11 @@ define razor::server::microkernel
     group   => $initrd_group,
     mode    => $initrd_mode,
 
-    require => [Archive["${tmp_dir}/${file}"], Class['::razor::server::service']],
+    require => Archive["${tmp_dir}/${file}"],
   }
 
   file
-  { "${_repo_store_root}/vmlinuz0":
+  { "${_repo_store_root}/${repo_microkernel_dir}/vmlinuz0":
     ensure  => $file_ensure,
     source  => "${tmp_dir}/${dir}/vmlinuz0",
 
@@ -111,6 +117,6 @@ define razor::server::microkernel
     group   => $vmlinuz_group,
     mode    => $vmlinuz_mode,
 
-    require => [Archive["${tmp_dir}/${file}"], Class['::razor::server::service']],
+    require => Archive["${tmp_dir}/${file}"],
   }
 }
