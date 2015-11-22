@@ -85,7 +85,6 @@ class razor::server::postgresql
       {
         class
         { '::postgresql::server':
-          ensure   => $ensure,
           ipv4acls => ['host all all 127.0.0.1/32 md5'],
         }
 
