@@ -35,7 +35,7 @@
 #
 # Copyright 2015 Your name here, unless otherwise noted.
 #
-class razor::server::config::environment
+define razor::server::config::environment
 (
   $ensure           = 'present',
   $environment_name = $name,
@@ -107,7 +107,7 @@ class razor::server::config::environment
 
   if ($task_path != undef)
   {
-    validate_absolute_path($task_path)
+    validate_array($task_path)
     $_task_path = join($task_path, ':')
   }
 
@@ -118,19 +118,19 @@ class razor::server::config::environment
 
   if ($broker_path != undef)
   {
-    validate_absolute_path($broker_path)
+    validate_array($broker_path)
     $_broker_path = join($broker_path, ':')
   }
 
   if ($hook_path != undef)
   {
-    validate_absolute_path($hook_path)
+    validate_array($hook_path)
     $_hook_path = join($hook_path, ':')
   }
 
   if ($hook_execution_path != undef)
   {
-    validate_absolute_path($hook_execution_path)
+    validate_array($hook_execution_path)
     $_hook_execution_path = join($hook_execution_path, ':')
   }
 

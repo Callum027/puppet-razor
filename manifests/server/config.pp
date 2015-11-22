@@ -62,7 +62,7 @@ class razor::server::config
   }
 
   ::concat::fragment
-  { 'razor::server::config::header',
+  { 'razor::server::config::header':
     target  => 'razor::server::config',
     order   => '01',
     content => '---\n# This file is managed by Puppet.\n# Any local modifications will be overwritten.\n\n',
