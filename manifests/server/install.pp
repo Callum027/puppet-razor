@@ -41,8 +41,17 @@ class razor::server::install
   $server_packages = $razor::params::server_packages,
 ) inherits razor::params
 {
+  if (!(defined(Class['::razor::repo'])))
+  {
+    class
+    { '::razor::repo':
+      ensure => $ensure,
+    }
+  }
+
   package
   { $server_packages:
     ensure  => $ensure,
+    require => Class['::razor::repo'],
   }
 }

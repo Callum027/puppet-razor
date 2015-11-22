@@ -42,15 +42,7 @@ class razor::server
   $install_microkernel = true,
 )
 {
-  # Install the repository and client packages, required on the server.
-  if (!(defined(Class['::razor::repo'])))
-  {
-    class
-    { '::razor::repo':
-      ensure => $ensure,
-    }
-  }
-
+  # Install the client package, required on the server.
   if (!(defined(Class['::razor::client'])))
   {
     class
