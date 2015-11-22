@@ -39,10 +39,8 @@ class razor::server
 (
   $ensure              = 'present',
   $install_postgresql  = true,
-)
+) inherits razor::params
 {
-  require ::razor::params
-
   # Install the client package, required on the server.
   if (!(defined(Class['::razor::client'])))
   {
@@ -57,7 +55,7 @@ class razor::server
   {
     class
     { '::razor::server::install':
-      ensure    => $ensure,
+      ensure => $ensure,
     }
   }
 

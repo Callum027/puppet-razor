@@ -59,7 +59,7 @@ define razor::server::config::environment
   $create_repo_store_root = true,
   $repo_store_root_owner  = $::razor::params::razor_user,
   $repo_store_root_group  = $::razor::params::razor_group,
-  $repo_store_root_group  = '0755',
+  $repo_store_root_mode   = '0755',
 )
 {
   # Validate all arguments (as much as we can, anyway.)

@@ -61,7 +61,7 @@ define razor::server::microkernel
   $tmp_dir = $::razor::params::tmp_dir,
 )
 {
-  $_repo_store_root = pick_default($repo_store_root, getparam(::Razor::Server::Config::Environment[$environment]))
+  $_repo_store_root = pick_default($repo_store_root, getparam(::Razor::Server::Config::Environment[$environment], 'repo_store_root'))
 
   if ($ensure == 'present' or ensure == present)
   {
