@@ -154,15 +154,15 @@ class razor::server::config::default
 
   if ($facts_blacklist != undef and $facts_match_nodes_on != undef)
   {
-    $_facts = {'blacklist' => $facts_blacklist, 'match_nodes_on'  => $facts_match_nodes_on}
+    $_facts = {'blacklist' => $facts_blacklist, 'match_nodes_on' => $facts_match_nodes_on}
   }
   elsif ($facts_blacklist != undef)
   {
-    $_facts = {'blacklist' => $facts_blacklist, 'match_nodes_on'  => $facts_match_nodes_on}
+    $_facts = {'blacklist' => $facts_blacklist}
   }
   elsif ($facts_match_nodes_on != undef)
   {
-    $_facts = {'blacklist' => $facts_blacklist, 'match_nodes_on'  => $facts_match_nodes_on}
+    $_facts = {'match_nodes_on' => $facts_match_nodes_on}
   }
 
   # Collect the database information from a local or remote PostgreSQL database, or the parameter.
