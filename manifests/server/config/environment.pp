@@ -60,7 +60,7 @@ define razor::server::config::environment
   $repo_store_root_owner  = $::razor::params::razor_user,
   $repo_store_root_group  = $::razor::params::razor_group,
   $repo_store_root_group  = '0755',
-) inherits razor::params
+)
 {
   # Validate all arguments (as much as we can, anyway.)
   validate_string($environment_name)
