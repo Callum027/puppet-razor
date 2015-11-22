@@ -101,6 +101,70 @@ class razor::server::config::default
   # Default post-processed values.
   $_repo_store_root = pick($repo_store_root, "${server_data_dir}/repo-store")
 
+  if ($auth_enabled != undef and $auth_config != undef)
+  {
+    $_auth = {'enabled' => $auth_enabled, 'config'  => $auth_config}
+  }
+  elsif ($auth_enabled != undef)
+  {
+    $_auth = {'enabled' => $auth_enabled, 'config'  => $auth_config}
+  }
+  elsif ($auth_config != undef)
+  {
+    $_auth = {'enabled' => $auth_enabled, 'config'  => $auth_config}
+  }
+
+  if ($microkernel_debug_level != undef and $facts_kernel_args != undef and $microkernel_extension_zip != undef)
+  {
+    $_microkernel =
+    {
+      'debug_level'   => $microkernel_debug_level,
+      'kernel_args'   => $microkernel_kernel_args,
+      'extension-zip' => $microkernel_extension_zip,
+    }
+  }
+  elsif ($microkernel_debug_level != undef and $facts_kernel_args != undef)
+  {
+    $_microkernel =
+    {
+      'debug_level' => $microkernel_debug_level,
+      'kernel_args' => $microkernel_kernel_args,
+    }
+  }
+  elsif ($facts_kernel_args != undef and $microkernel_extension_zip != undef)
+  {
+    $_microkernel =
+    {
+      'kernel_args'   => $microkernel_kernel_args,
+      'extension-zip' => $microkernel_extension_zip,
+    }
+  }
+  elsif ($microkernel_debug_level != undef)
+  {
+    $_microkernel = {'debug_level' => $microkernel_debug_level}
+  }
+  elsif ($facts_kernel_args != undef)
+  {
+    $_microkernel = {'kernel_args' => $microkernel_kernel_args}
+  }
+  elsif ($microkernel_extension_zip != undef)
+  {
+    $_microkernel = {'extension-zip' => $microkernel_extension_zip}
+  }
+
+  if ($facts_blacklist != undef and $facts_match_on != undef)
+  {
+    $_facts = {'blacklist' => $facts_blacklist, 'match_on'  => $facts_match_on}
+  }
+  elsif ($facts_blacklist != undef)
+  {
+    $_facts = {'blacklist' => $facts_blacklist, 'match_on'  => $facts_match_on}
+  }
+  elsif ($facts_match_on != undef)
+  {
+    $_facts = {'blacklist' => $facts_blacklist, 'match_on'  => $facts_match_on}
+  }
+
   # Collect the database information from a local or remote PostgreSQL database, or the parameter.
   if ($database_url == undef and $collect_database == true)
   {
@@ -142,18 +206,9 @@ class razor::server::config::default
 
     database_url        => $_database_url,
 
-    auth                =>
-    {
-      'enabled' => $auth_enabled,
-      'config'  => $auth_config,
-    },
+    auth                => $_auth,
 
-    microkernel         =>
-    {
-      'debug_level'     => $microkernel_debug_level,
-      'kernel_args'     => $microkernel_kernel_args,
-      'extension_zip'   => $microkernel_extension_zip,
-    },
+    microkernel         => $_microkernel,
 
     secure_api          => $secure_api,
     protect_new_nodes   => $protect_new_nodes,
@@ -172,10 +227,6 @@ class razor::server::config::default
     hook_path           => $hook_path,
     hook_execution_path => $hook_execution_path,
 
-    facts               =>
-    {
-      'blacklist'      => $facts_blacklist,
-      'facts_match_on' => $facts_match_on,
-    },
+    facts               => $_facts,
   }
 }
