@@ -35,34 +35,20 @@
 #
 # Copyright 2015 Your name here, unless otherwise noted.
 #
-define razor::server::tag
+class razor::server::service
 (
-  $rule,
-  $tag_name = $name,
-
-  $ensure = 'present',
-
-  # razor::params default values.
-  $grep  = $::razor::params::grep,
-  $razor = $::razor::params::razor,
-)
+  $ensure          = 'present',
+  $server_services = $::razor::params::server_services,
+) inherits razor::params
 {
-  if ($ensure == 'present' or $ensure == present)
+	if ($ensure = 'present' or $ensure == present)
   {
-    exec
-    { "razor::server::tag::create::${name}":
-      command => "${razor} create-tag --name ${tag_name} --rule '${rule}'",
-      unless  => "${razor} tags | ${grep} '^| ${tag_name} |'",
-      require => Class['::razor::server::service'],
-    }
+    $service_ensure = 'running'
   }
-  elsif ($ensure == 'absent' or $ensure == absent)
-  {
-    exec
-    { "razor::server::tag::delete::${name}":
-      command => "${razor} delete-tag --name ${tag_name}",
-      onlyif  => "${razor} tag | ${grep} '^| ${tag_name} |'",
-      require => Class['::razor::server::service'],
-    }
+
+  service
+  { $server_services:
+    ensure  => $service_ensure,
+    require => Class['::razor::server::install'],
   }
 }

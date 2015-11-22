@@ -98,8 +98,10 @@ class razor::server::config::default
   $server_data_dir = $::razor::params::server_data_dir,
 ) inherits razor::params
 {
+  # Default post-processed values.
   $_repo_store_root = pick($repo_store_root, "${server_data_dir}/repo-store")
 
+  # Collect the database information from a local or remote PostgreSQL database, or the parameter.
   if ($database_url == undef and $collect_database == true)
   {
     if (defined(Class['::razor::server::postgresql']))
@@ -112,8 +114,8 @@ class razor::server::config::default
 
       ::Razor::Postgresql::Export <<| hostname = $postgresql_hostname |>>
 
-      $postgresql_db = getparam(::Razor::Postgresql::Export[$postgresql_hostname], "db")
-      $postgresql_user = getparam(::Razor::Postgresql::Export[$postgresql_hostname], "user")
+      $postgresql_db       = getparam(::Razor::Postgresql::Export[$postgresql_hostname], "db")
+      $postgresql_user     = getparam(::Razor::Postgresql::Export[$postgresql_hostname], "user")
       $postgresql_password = getparam(::Razor::Postgresql::Export[$postgresql_hostname], "password")
 
       $_database_url = "jdbc:postgresql://${postgresql_hostname}/${postgresql_db}?user=${postgresql_user}&password=${postgresql_password}"
@@ -124,8 +126,20 @@ class razor::server::config::default
     $_database_url = $database_url
   }
 
+  # Make sure that the configuration file is defined.
+  if (!(defined(Class['::razor::server::config'])))
+  {
+    class
+    { '::razor::server::config':
+      ensure => $ensure,
+    }
+  }
+
+  # One environment, 'all', with everything.
   ::razor::server::config::environment
   { 'all':
+    ensure              => $ensure,
+
     database_url        => $_database_url,
 
     auth                =>

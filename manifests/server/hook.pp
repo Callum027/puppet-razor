@@ -56,14 +56,14 @@ define razor::server::hook
     { "razor::server::hook::create::${name}":
       command => "${razor} create-hook --name ${hook_name} --hook-type ${hook_type} --configuration ${configuration_args}",
       unless  => "${razor} hooks | ${grep} '^| ${repo_name} |'",
-      require => Class[['::razor::server', '::razor::config']],
+      require => Class['::razor::server::service'],
     }
 
     exec
     { "razor::server::hook::update_configuration::${name}":
       command => "${razor} update-hook-configuration --name ${hook_name} --hook-type ${hook_type} --configuration ${configuration_args}",
       unless  => "${razor} hooks | ${grep} '^| ${repo_name} |'",
-      require => Class[['::razor::server', '::razor::config']],
+      require => Class['::razor::server::service'],
     }
   }
   elsif ($ensure == 'absent')
@@ -72,7 +72,7 @@ define razor::server::hook
     { 'razor::server::hook::delete':
       command => "${razor} delete-hook --name ${hook_name}",
       onlyif  => "${razor} hook | ${grep} '^| ${hook_name} |'",
-      require => Class[['::razor::server', '::razor::config']],
+      require => Class['::razor::server::service'],
     }
   }
 }

@@ -109,7 +109,7 @@ class razor::server::microkernel
     group   => $razor_group,
     mode    => $initrd_mode,
 
-    require => Archive['razor-microkernel'],
+    require => [Archive['razor-microkernel'], Class['::razor::server::service']],
   }
 
   file
@@ -121,6 +121,6 @@ class razor::server::microkernel
     group   => $razor_group,
     mode    => $vmlinuz_mode,
 
-    require => Archive['razor-microkernel'],
+    require => [Archive['razor-microkernel'], Class['::razor::server::service']],
   }
 }

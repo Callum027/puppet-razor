@@ -68,7 +68,7 @@ define razor::server::broker
     { "razor::server::broker::create::${name}":
       command => "${razor} create-broker ${_args} --name ${broker_name} --broker-type ${broker_type}",
       unless  => "${razor} brokers | ${grep} '^| ${broker_name} |'",
-      require => Class[['::razor::server', '::razor::config']],
+      require => Class['::razor::server::service'],
     }
   }
   elsif ($ensure == 'absent' or $ensure == absent)
@@ -77,7 +77,7 @@ define razor::server::broker
     { "razor::server::broker::delete::${name}":
       command => "${razor} delete-broker --name ${broker_name}",
       onlyif  => "${razor} broker | ${grep} '^| ${broker_name} |'",
-      require => Class[['::razor::server', '::razor::config']],
+      require => Class['::razor::server::service'],
     }
   }
 }

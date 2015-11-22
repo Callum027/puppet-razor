@@ -52,11 +52,13 @@ class razor::server::config
 
   ::concat
   { 'razor::server::config':
-    ensure => $ensure,
-    path   => $_path,
-    owner  => $owner,
-    group  => $group,
-    mode   => $mode,
+    ensure    => $ensure,
+    path      => $_path,
+    owner     => $owner,
+    group     => $group,
+    mode      => $mode,
+    require   => Class['::razor::server::install'],
+    subscribe => Class['::razor::server::service'],
   }
 
   ::concat::fragment

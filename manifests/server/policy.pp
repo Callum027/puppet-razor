@@ -86,7 +86,7 @@ define razor::server::policy
       unless  => "${razor} policies | ${grep} '^| ${policy_name} |'",
       require =>
       [
-        Class[['::razor::server', '::razor::config']],
+        Class['::razor::server::service'],
         File["razor::server::policy::tmp_file::create::${name}"],
         Razor::server::broker[$broker],
         Razor::server::task[$task],
@@ -116,7 +116,7 @@ define razor::server::policy
     { "razor::server::policy::delete::${name}":
       command => "${razor} delete-policy --name ${policy_name}",
       onlyif  => "${razor} policy | ${grep} '^| ${policy_name} |'",
-      require => Class[['::razor::server', '::razor::config']],
+      require => Class['::razor::server::service'],
     }
   }
 }

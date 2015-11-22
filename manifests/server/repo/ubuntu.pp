@@ -35,56 +35,24 @@
 #
 # Copyright 2015 Your name here, unless otherwise noted.
 #
-class razor::server
+define razor::server::repo::ubuntu
 (
-	$ensure	= "present"
+  $release,
+  $flavor = 'desktop',
+  $arch   = 'i386',
+
+  $task    = 'ubuntu',
+  $iso_url = undef, # Defined in body
 )
-	if (Class["razor::client"] == undef)
-	{
-		class
-		{ "razor::client":
-			ensure	=> $ensure,
-		}
-	}
 {
-	if (Class["razor::server::install"] == undef)
-	{
-		class
-		{ "razor::server::install":
-			ensure	=> $ensure,
-		}
-	}
+  validate_re($flavor, ['^desktop$', '^server$'], "valid values for flavor are 'desktop' and 'server'")
+  validate_re($arch, ['^i386$', '^amd64$'], "valid values for arch are 'i386' and 'amd64'")
 
-	if (Class["razor::server::postgresql"] == undef)
-	{
-		class
-		{ "razor::server::postgresql":
-			ensure	=> $ensure,
-		}
-	}
+  $_iso_url = pick($iso_url, "http://releases.ubuntu.com/${release}/ubuntu-${release}-${flavor}-${arch}.iso")
 
-	if (Class["razor::server::config"] == undef)
-	{
-		class
-		{ "razor::server::config":
-			ensure	=> $ensure,
-		}
-	}
-
-	if (Class["razor::server::microkernel"] == undef)
-	{
-		class
-		{ "razor::server::microkernel":
-			ensure	=> $ensure,
-		}
-	}
-
-	if ($ensure = "present")
-	{
-		service
-		{ $razor_server_services:
-			ensure	=> "running",
-			require	=> [Class["razor::server::install"], Class["razor::server::postgresql"], Class["razor::server::config"]]
-		}
-	}
+  ::razor::server::repo
+  { $name:
+    task    => $task,
+    iso_url => $_iso_url,
+  }
 }

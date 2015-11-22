@@ -89,8 +89,6 @@ class razor::server::postgresql
     }
   }
 
-
-
   if ($ensure == 'present' or ensure == present)
   {
     ::postgresql::server::db
@@ -98,6 +96,13 @@ class razor::server::postgresql
       ensure   => $ensure,
       user     => $user,
       password => postgresql_password($user, $password),
+    }
+
+    # Make sure the database gets initialised before the Razor Server
+    # gets installed.
+    if (defined(Class['::razor::server::install']))
+    {
+      ::Postgresql::Server::Db[$db] -> Class['::razor::server::install']
     }
   }
 }

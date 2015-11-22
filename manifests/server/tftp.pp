@@ -89,9 +89,9 @@ class razor::server::tftp
       destination => $bootstrap_ipxe_path,
     }
 
-    if (defined(Class['::razor::server']))
+    if (defined(Class['::razor::server::service']))
     {
-      Class['::razor::server'] -> ::Wget::Fetch[$_bootstrap_ipxe_url]
+      Class['::razor::server::service'] -> ::Wget::Fetch[$_bootstrap_ipxe_url]
     }
 
     ::tftp::file

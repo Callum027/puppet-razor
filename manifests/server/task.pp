@@ -95,15 +95,17 @@ define razor::server::task
     }
   }
 
+  Class['::razor::server::service'] -> File[$task_path_full]
+
   file
   { "${task_path_full}/${task_name}.task":
     ensure  => $directory_ensure,
     owner   => $razor_user,
     group   => $razor_group,
     mode    => $task_directory_mode,
-
     recurse => 'remote',
     source  => $template_dir,
+    require => Class['::razor::server::service'],
   }
 
   # The metadata file for this task.
@@ -114,5 +116,6 @@ define razor::server::task
     group   => $razor_group,
     mode    => $metadata_yaml_mode,
     content => template('razor/metadata.yaml.erb'),
+    require => Class['::razor::server::service'],
   }
 }
