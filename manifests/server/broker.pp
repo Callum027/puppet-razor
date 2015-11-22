@@ -68,7 +68,7 @@ define razor::server::broker
     exec
     { "razor::server::broker::create::${name}":
       command => "${razor} --url ${client_url} create-broker ${_args} --name ${broker_name} --broker-type ${broker_type}",
-      unless  => "${razor} --url ${client_url} brokers | ${grep} '^| ${broker_name} |'",
+      unless  => "${razor} --url ${client_url} brokers | ${grep} '^| ${broker_name}'",
       require => Class['::razor::server::service'],
     }
   }
@@ -77,7 +77,7 @@ define razor::server::broker
     exec
     { "razor::server::broker::delete::${name}":
       command => "${razor} --url ${client_url} delete-broker --name ${broker_name}",
-      onlyif  => "${razor} --url ${client_url} broker | ${grep} '^| ${broker_name} |'",
+      onlyif  => "${razor} --url ${client_url} broker | ${grep} '^| ${broker_name}'",
       require => Class['::razor::server::service'],
     }
   }

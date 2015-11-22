@@ -53,7 +53,7 @@ define razor::server::tag
     exec
     { "razor::server::tag::create::${name}":
       command => "${razor} --url ${client_url} create-tag --name ${tag_name} --rule '${rule}'",
-      unless  => "${razor} --url ${client_url} tags | ${grep} '^| ${tag_name} |'",
+      unless  => "${razor} --url ${client_url} tags | ${grep} '^| ${tag_name}'",
       require => Class['::razor::server::service'],
     }
   }
@@ -62,7 +62,7 @@ define razor::server::tag
     exec
     { "razor::server::tag::delete::${name}":
       command => "${razor} --url ${client_url} delete-tag --name ${tag_name}",
-      onlyif  => "${razor} --url ${client_url} tag | ${grep} '^| ${tag_name} |'",
+      onlyif  => "${razor} --url ${client_url} tags | ${grep} '^| ${tag_name}'",
       require => Class['::razor::server::service'],
     }
   }
