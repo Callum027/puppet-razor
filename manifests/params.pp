@@ -42,6 +42,7 @@ class razor::params
       $grep        = '/bin/grep'
       $razor       = '/usr/local/bin/razor'
       $razor_admin = '/usr/sbin/razor-admin'
+      $rm          = '/bin/rm'
 
       # Working directories.
       $tmp_dir = '/tmp'

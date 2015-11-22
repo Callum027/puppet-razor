@@ -65,6 +65,7 @@ define razor::server::policy
   $client_url = $razor::params::client_url,
   $grep       = $::razor::params::grep,
   $razor      = $::razor::params::razor,
+  $rm         = $::razor::params::rm,
   $tmp_dir    = $::razor::params::tmp_dir,
 )
 {
@@ -111,10 +112,9 @@ define razor::server::policy
       ::Razor::Server::Tag[$tags] -> Exec["razor::server::policy::create::${name}"]
     }
 
-    file
+    exec
     { "razor::server::policy::tmp_file::delete::${name}":
-      ensure  => 'absent',
-      path    => $_tmp_file,
+      command => "${rm} -rf ${_tmp_file}",
       require => Exec["razor::server::policy::create::${name}"],
     }
   }
