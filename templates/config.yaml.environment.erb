@@ -11,7 +11,7 @@
     <% scope.function_fail(["Invalid value type for option auth['enabled'], should be boolean"]) -%>
   <% end -%>
   <% if @auth['config'] -%>
-    <% if File.directory?(@auth['config']) or File.file?(@auth['config']) -%>
+    <% if @auth['config'].is_a?(String) -%>
   config: <%= @auth['config'] %>
     <% else -%>
       <% scope.function_fail(["Invalid value type for option auth['config'], should be file name/path"]) -%>
