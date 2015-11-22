@@ -59,41 +59,45 @@ class razor::server::postgresql
 
     if (!(defined(Class['::postgresql::server'])))
     {
-      class
-      { '::postgresql::server':
-        ensure                     => $ensure,
-        ip_mask_deny_postgres_user => '0.0.0.0/32',
-        ip_mask_allow_all_users    => '0.0.0.0/0',
-        listen_addresses           => '*',
-        ipv4acls                   =>
-        [
-          'host all all 127.0.0.1/32 md5',
-          'hostssl all all 0.0.0.0/0 md5'
-        ],
-      }
+      if ($ensure == 'present' or $ensure == present)
+      {
+        class
+        { '::postgresql::server':
+          ip_mask_deny_postgres_user => '0.0.0.0/32',
+          ip_mask_allow_all_users    => '0.0.0.0/0',
+          listen_addresses           => '*',
+          ipv4acls                   =>
+          [
+            'host all all 127.0.0.1/32 md5',
+            'hostssl all all 0.0.0.0/0 md5'
+          ],
+        }
 
-      contain ::postgresql::server
+        contain ::postgresql::server
+      }
     }
   }
   else
   {
     if (!(defined(Class['::postgresql::server'])))
     {
-      class
-      { '::postgresql::server':
-        ensure   => $ensure,
-        ipv4acls => ['host all all 127.0.0.1/32 md5'],
-      }
+      if ($ensure == 'present' or $ensure == present)
+      {
+        class
+        { '::postgresql::server':
+          ensure   => $ensure,
+          ipv4acls => ['host all all 127.0.0.1/32 md5'],
+        }
 
-      contain ::postgresql::server
+        contain ::postgresql::server
+      }
     }
   }
 
-  if ($ensure == 'present' or ensure == present)
+  if ($ensure == 'present' or $ensure == present)
   {
     ::postgresql::server::db
     { $db:
-      ensure   => $ensure,
       user     => $user,
       password => postgresql_password($user, $password),
     }

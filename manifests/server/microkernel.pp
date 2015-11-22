@@ -39,8 +39,9 @@ class razor::server::microkernel
 (
   $ensure = 'present',
 
-  $url       = 'http://links.puppetlabs.com/razor-microkernel-latest.tar',
-  $extension = 'tar',
+  $source = 'http://links.puppetlabs.com/razor-microkernel-latest.tar',
+  $file   = 'microkernel.tar',
+  $dir    = 'microkernel',
 
   $repo_store_root         = undef, # Defined in body
   $collect_repo_store_root = true,
@@ -75,17 +76,19 @@ class razor::server::microkernel
     $file_ensure = $ensure
   }
 
+  include ::archive
+
   # Download and extract the latest Razor microkernel.
   archive
-  { 'razor-microkernel':
-    ensure           => $ensure,
+  { "${tmp_dir}/${file}":
+    ensure       => $ensure,
 
-    target           => $tmp_dir,
-    checksum         => false,
+    source       => $source,
 
-    url              => $url,
-    extension        => $extension,
-    follow_redirects => true,
+    extract      => true,
+    extract_path => $tmp_dir,
+
+    creates      => "${tmp_dir}/${dir}",
   }
 
   # Place the initial ramdisk and kernel images in the correct location.
@@ -103,24 +106,24 @@ class razor::server::microkernel
   file
   { "${_repo_store_root}/initrd0.img":
     ensure  => $file_ensure,
-    source  => "${tmp_dir}/razor-microkernel/initrd0.img",
+    source  => "${tmp_dir}/${dir}/initrd0.img",
 
     owner   => $razor_user,
     group   => $razor_group,
     mode    => $initrd_mode,
 
-    require => [Archive['razor-microkernel'], Class['::razor::server::service']],
+    require => [Archive["${tmp_dir}/${file}"], Class['::razor::server::service']],
   }
 
   file
   { "${_repo_store_root}/vmlinuz0":
     ensure  => $file_ensure,
-    source  => "${tmp_dir}/razor-microkernel/vmlinuz0",
+    source  => "${tmp_dir}/${dir}/vmlinuz0",
 
     owner   => $razor_user,
     group   => $razor_group,
     mode    => $vmlinuz_mode,
 
-    require => [Archive['razor-microkernel'], Class['::razor::server::service']],
+    require => [Archive["${tmp_dir}/${file}"], Class['::razor::server::service']],
   }
 }

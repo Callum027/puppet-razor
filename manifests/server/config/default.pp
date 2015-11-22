@@ -112,7 +112,7 @@ class razor::server::config::default
     {
       $postgresql_hostname = join(values_at(query_nodes('Class["razor::server::postgresql"]'), 0), ',')
 
-      ::Razor::Postgresql::Export <<| hostname = $postgresql_hostname |>>
+      ::Razor::Server::Postgresql::Export <<| hostname == $postgresql_hostname |>>
 
       $postgresql_db       = getparam(::Razor::Postgresql::Export[$postgresql_hostname], "db")
       $postgresql_user     = getparam(::Razor::Postgresql::Export[$postgresql_hostname], "user")

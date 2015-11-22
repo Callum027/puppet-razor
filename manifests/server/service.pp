@@ -41,7 +41,7 @@ class razor::server::service
   $server_services = $::razor::params::server_services,
 ) inherits razor::params
 {
-	if ($ensure = 'present' or $ensure == present)
+  if ($ensure == 'present' or $ensure == present)
   {
     $service_ensure = 'running'
   }
