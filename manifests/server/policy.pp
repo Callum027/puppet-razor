@@ -107,7 +107,7 @@ define razor::server::policy
       Razor::server::repo[$repo] -> Exec["razor::server::policy::create::${name}"]
     }
 
-    if (require_repo == true)
+    if (require_broker == true)
     {
       Razor::server::broker[$broker] -> Exec["razor::server::policy::create::${name}"]
     }
