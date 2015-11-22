@@ -39,7 +39,6 @@ class razor::server
 (
   $ensure              = 'present',
   $install_postgresql  = true,
-  $install_microkernel = true,
 )
 {
   # Install the client package, required on the server.
@@ -73,15 +72,6 @@ class razor::server
   {
     class
     { '::razor::server::postgresql':
-      ensure => $ensure,
-    }
-  }
-
-  # Install the microkernel necessary for booting nodes via PXE/TFTP automatically, if enabled.
-  if ($install_microkernel == true)
-  {
-    class
-    { '::razor::server::microkernel':
       ensure => $ensure,
     }
   }
