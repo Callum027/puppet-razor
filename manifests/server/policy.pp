@@ -97,27 +97,17 @@ define razor::server::policy
       require => [Class['::razor::server::service'], File["razor::server::policy::tmp_file::create::${name}"]],
     }
 
-    if (require_repo == true)
+    if ($require_repo == true)
     {
-      if (!defined(::Razor::Server::Repo[repo]))
-      {
-        fail("Undefined repo ${repo}")
-      }
-
       ::Razor::Server::Repo[$repo] -> Exec["razor::server::policy::create::${name}"]
     }
 
-    if (require_broker == true)
+    if ($require_broker == true)
     {
-      if (!defined(::Razor::Server::Broker[$broker]))
-      {
-        fail("Undefined broker ${broker}")
-      }
-
       ::Razor::Server::Broker[$broker] -> Exec["razor::server::policy::create::${name}"]
     }
 
-    if ($tags != undef and require_tags == true)
+    if ($tags != undef and $require_tags == true)
     {
       # TODO: Find a way to detect undefined tags, WITHOUT Puppet 4.
       ::Razor::Server::Tag[$tags] -> Exec["razor::server::policy::create::${name}"]
