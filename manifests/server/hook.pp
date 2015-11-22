@@ -44,8 +44,9 @@ define razor::server::hook
   $ensure = 'present',
 
   # razor::params default values.
-  $grep  = $::razor::params::grep,
-  $razor = $::razor::params::razor,
+  $client_url = $razor::params::client_url,
+  $grep       = $::razor::params::grep,
+  $razor      = $::razor::params::razor,
 )
 {
   $configuration_args = join($configuration, " --configuration ")
@@ -54,15 +55,15 @@ define razor::server::hook
   {
     exec
     { "razor::server::hook::create::${name}":
-      command => "${razor} create-hook --name ${hook_name} --hook-type ${hook_type} --configuration ${configuration_args}",
-      unless  => "${razor} hooks | ${grep} '^| ${repo_name} |'",
+      command => "${razor} --url ${client_url} create-hook --name ${hook_name} --hook-type ${hook_type} --configuration ${configuration_args}",
+      unless  => "${razor} --url ${client_url} hooks | ${grep} '^| ${repo_name} |'",
       require => Class['::razor::server::service'],
     }
 
     exec
     { "razor::server::hook::update_configuration::${name}":
-      command => "${razor} update-hook-configuration --name ${hook_name} --hook-type ${hook_type} --configuration ${configuration_args}",
-      unless  => "${razor} hooks | ${grep} '^| ${repo_name} |'",
+      command => "${razor} --url ${client_url} update-hook-configuration --name ${hook_name} --hook-type ${hook_type} --configuration ${configuration_args}",
+      unless  => "${razor} --url ${client_url} hooks | ${grep} '^| ${repo_name} |'",
       require => Class['::razor::server::service'],
     }
   }
@@ -70,8 +71,8 @@ define razor::server::hook
   {
     exec
     { 'razor::server::hook::delete':
-      command => "${razor} delete-hook --name ${hook_name}",
-      onlyif  => "${razor} hook | ${grep} '^| ${hook_name} |'",
+      command => "${razor} --url ${client_url} delete-hook --name ${hook_name}",
+      onlyif  => "${razor} --url ${client_url} hook | ${grep} '^| ${hook_name} |'",
       require => Class['::razor::server::service'],
     }
   }

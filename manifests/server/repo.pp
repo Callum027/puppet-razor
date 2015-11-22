@@ -46,8 +46,9 @@ define razor::server::repo
   $args   = undef, # Defined in body
 
   # razor::params default values.
-  $grep  = $::razor::params::grep,
-  $razor = $::razor::params::razor,
+  $client_url = $razor::params::client_url,
+  $grep       = $::razor::params::grep,
+  $razor      = $::razor::params::razor,
 )
 {
   if ($args != undef)
@@ -71,8 +72,8 @@ define razor::server::repo
   {
     exec
     { "razor::server::repo::create::${name}":
-      command => "${razor} create-repo ${_args} --name ${repo_name} --task ${task}",
-      unless  => "${razor} repos | ${grep} '^| ${repo_name} |'",
+      command => "${razor} --url ${client_url} create-repo ${_args} --name ${repo_name} --task ${task}",
+      unless  => "${razor} --url ${client_url} repos | ${grep} '^| ${repo_name} |'",
       require => Class['::razor::server::service'],
     }
   }
@@ -80,8 +81,8 @@ define razor::server::repo
   {
     exec
     { "razor::server::repo::delete::${name}":
-      command => "${razor} delete-repo --name ${repo_name}",
-      onlyif  => "${razor} repo | ${grep} '^| ${repo_name} |'",
+      command => "${razor} --url ${client_url} delete-repo --name ${repo_name}",
+      onlyif  => "${razor} --url ${client_url} repo | ${grep} '^| ${repo_name} |'",
       require => Class['::razor::server::service'],
     }
   }

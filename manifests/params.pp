@@ -49,12 +49,16 @@ class razor::params
       # Razor Client configuration variables.
       $client_packages = 'razor-client'
 
+      $client_url = 'http://razor:8080/api'
+
       # Razor Server configuration variables.
       $server_packages = 'razor-server'
       $server_services = 'razor-server'
 
-      $server_config_dir = '/etc/razor'
-      $server_data_dir   = '/var/lib/razor'
+      $server_config_dir         = '/etc/razor'
+      $server_data_dir           = '/var/lib/razor'
+      $server_torquebox_data_dir = '/var/lib/razor-torquebox'
+      # /var/lib/razor-torquebox/configuration/standalone.xml
 
       $razor_user  = 'razor'
       $razor_group = 'razor'

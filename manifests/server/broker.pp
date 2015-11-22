@@ -45,8 +45,9 @@ define razor::server::broker
   $args   = undef, # Defined in body
 
   # razor::params default values.
-  $grep  = $::razor::params::grep,
-  $razor = $::razor::params::razor,
+  $client_url = $razor::params::client_url,
+  $grep       = $::razor::params::grep,
+  $razor      = $::razor::params::razor,
 )
 {
   if ($args != undef)
@@ -66,8 +67,8 @@ define razor::server::broker
   {
     exec
     { "razor::server::broker::create::${name}":
-      command => "${razor} create-broker ${_args} --name ${broker_name} --broker-type ${broker_type}",
-      unless  => "${razor} brokers | ${grep} '^| ${broker_name} |'",
+      command => "${razor} --url ${client_url} create-broker ${_args} --name ${broker_name} --broker-type ${broker_type}",
+      unless  => "${razor} --url ${client_url} brokers | ${grep} '^| ${broker_name} |'",
       require => Class['::razor::server::service'],
     }
   }
@@ -75,8 +76,8 @@ define razor::server::broker
   {
     exec
     { "razor::server::broker::delete::${name}":
-      command => "${razor} delete-broker --name ${broker_name}",
-      onlyif  => "${razor} broker | ${grep} '^| ${broker_name} |'",
+      command => "${razor} --url ${client_url} delete-broker --name ${broker_name}",
+      onlyif  => "${razor} --url ${client_url} broker | ${grep} '^| ${broker_name} |'",
       require => Class['::razor::server::service'],
     }
   }

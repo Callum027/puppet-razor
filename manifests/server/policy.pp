@@ -61,9 +61,10 @@ define razor::server::policy
   $tmp_file = undef, # Defined in body
 
   # razor::params default values.
-  $grep    = $::razor::params::grep,
-  $razor   = $::razor::params::razor,
-  $tmp_dir = $::razor::params::tmp_dir,
+  $client_url = $razor::params::client_url,
+  $grep       = $::razor::params::grep,
+  $razor      = $::razor::params::razor,
+  $tmp_dir    = $::razor::params::tmp_dir,
 )
 {
   if ($ensure == 'present' or $ensure == present)
@@ -82,8 +83,8 @@ define razor::server::policy
 
     exec
     { "razor::server::policy::create::${name}":
-      command => "${razor} create-policy --json ${_tmp_file}",
-      unless  => "${razor} policies | ${grep} '^| ${policy_name} |'",
+      command => "${razor} --url ${client_url} create-policy --json ${_tmp_file}",
+      unless  => "${razor} --url ${client_url} policies | ${grep} '^| ${policy_name} |'",
       require =>
       [
         Class['::razor::server::service'],
@@ -114,8 +115,8 @@ define razor::server::policy
   {
     exec
     { "razor::server::policy::delete::${name}":
-      command => "${razor} delete-policy --name ${policy_name}",
-      onlyif  => "${razor} policy | ${grep} '^| ${policy_name} |'",
+      command => "${razor} --url ${client_url} delete-policy --name ${policy_name}",
+      onlyif  => "${razor} --url ${client_url} policy | ${grep} '^| ${policy_name} |'",
       require => Class['::razor::server::service'],
     }
   }

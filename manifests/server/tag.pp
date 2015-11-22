@@ -43,16 +43,17 @@ define razor::server::tag
   $ensure = 'present',
 
   # razor::params default values.
-  $grep  = $::razor::params::grep,
-  $razor = $::razor::params::razor,
+  $client_url = $razor::params::client_url,
+  $grep       = $::razor::params::grep,
+  $razor      = $::razor::params::razor,
 )
 {
   if ($ensure == 'present' or $ensure == present)
   {
     exec
     { "razor::server::tag::create::${name}":
-      command => "${razor} create-tag --name ${tag_name} --rule '${rule}'",
-      unless  => "${razor} tags | ${grep} '^| ${tag_name} |'",
+      command => "${razor} --url ${client_url} create-tag --name ${tag_name} --rule '${rule}'",
+      unless  => "${razor} --url ${client_url} tags | ${grep} '^| ${tag_name} |'",
       require => Class['::razor::server::service'],
     }
   }
@@ -60,8 +61,8 @@ define razor::server::tag
   {
     exec
     { "razor::server::tag::delete::${name}":
-      command => "${razor} delete-tag --name ${tag_name}",
-      onlyif  => "${razor} tag | ${grep} '^| ${tag_name} |'",
+      command => "${razor} --url ${client_url} delete-tag --name ${tag_name}",
+      onlyif  => "${razor} --url ${client_url} tag | ${grep} '^| ${tag_name} |'",
       require => Class['::razor::server::service'],
     }
   }
