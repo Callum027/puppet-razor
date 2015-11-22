@@ -109,7 +109,6 @@ define razor::server::policy
 
     if ($tags != undef and $require_tags == true)
     {
-      # TODO: Find a way to detect undefined tags, WITHOUT Puppet 4.
       ::Razor::Server::Tag[$tags] -> Exec["razor::server::policy::create::${name}"]
     }
 
