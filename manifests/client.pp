@@ -25,6 +25,8 @@ class razor::client
   $client_packages = $::razor::params::client_packages,
 ) inherits razor::params
 {
+  require ::razor::params
+
   if ($ensure == 'present' or $ensure == present)
   {
     $package_ensure = 'installed'

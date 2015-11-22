@@ -41,6 +41,8 @@ class razor::server
   $install_postgresql  = true,
 )
 {
+  require ::razor::params
+
   # Install the client package, required on the server.
   if (!(defined(Class['::razor::client'])))
   {

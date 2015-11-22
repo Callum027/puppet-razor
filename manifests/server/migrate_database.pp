@@ -35,54 +35,25 @@
 #
 # Copyright 2015 Your name here, unless otherwise noted.
 #
-define razor::server::repo
+define razor::server::migrate_database
 (
-  $task,
-  $repo_name = $name,
-  $url       = undef,
-  $iso_url   = undef,
+  $environment = $name,
 
   $ensure = 'present',
   $args   = undef, # Defined in body
 
   # razor::params default values.
-  $grep  = $::razor::params::grep,
-  $razor = $::razor::params::razor,
+  $razor_admin = $::razor::params::razor_admin,
 )
 {
-  if ($args != undef)
-  {
-    $_args = $args
-  }
-  elsif ($iso_url != undef)
-  {
-    $_args = "--iso-url ${iso_url}"
-  }
-  elsif ($url != undef)
-  {
-    $_args = "--url ${iso_url}"
-  }
-  else
-  {
-    $_args = '--no-content true'
-  }
-
   if ($ensure == 'present' or $ensure == present)
   {
     exec
-    { "razor::server::repo::create::${name}":
-      command => "${razor} create-repo ${_args} --name ${repo_name} --task ${task}",
-      unless  => "${razor} repos | ${grep} '^| ${repo_name} |'",
-      require => Class['::razor::server::service'],
-    }
-  }
-  elsif ($ensure == 'absent' or $ensure == absent)
-  {
-    exec
-    { "razor::server::repo::delete::${name}":
-      command => "${razor} delete-repo --name ${repo_name}",
-      onlyif  => "${razor} repo | ${grep} '^| ${repo_name} |'",
-      require => Class['::razor::server::service'],
+    { "razor::server::migrate_database::update::${name}":
+      command   => "${razor_admin} migrate-database --environment ${environment}",
+      unless    => "${razor_admin} check-migrations --environment ${environment}",
+      require   => Class['::razor::server::config'],
+      subscribe => Class['::razor::server::service'],
     }
   }
 }

@@ -55,7 +55,12 @@ define razor::server::config::environment
   $hook_path           = undef,
   $hook_execution_path = undef,
   $facts               = undef,
-)
+
+  $create_repo_store_root = true,
+  $repo_store_root_owner  = $::razor::params::razor_user,
+  $repo_store_root_group  = $::razor::params::razor_group,
+  $repo_store_root_group  = '0755',
+) inherits razor::params
 {
   # Validate all arguments (as much as we can, anyway.)
   validate_string($environment_name)
@@ -139,6 +144,24 @@ define razor::server::config::environment
     validate_hash($facts)
   }
 
+  # Create any file resources configured.
+  if ($ensure == 'present' or $ensure == present)
+  {
+    $directory_ensure = 'directory'
+  }
+
+  if ($create_repo_store_root == true and !(defined(File[$repo_store_root])))
+  {
+    file
+    { $repo_store_root:
+      ensure => $directory_ensure,
+      owner  => $repo_store_root_owner,
+      group  => $repo_store_root_group,
+      mode   => $repo_store_root_mode,
+    }
+  }
+
+  # Add the environment to config.yaml.
   concat::fragment
   { "razor::server::config::environment::${name}":
     target  => 'razor::server::config',

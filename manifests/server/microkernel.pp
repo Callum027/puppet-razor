@@ -35,35 +35,33 @@
 #
 # Copyright 2015 Your name here, unless otherwise noted.
 #
-class razor::server::microkernel
+define razor::server::microkernel
 (
-  $ensure = 'present',
+  $environment = $name,
+  $ensure      = 'present',
 
-  $source = 'http://links.puppetlabs.com/razor-microkernel-latest.tar',
+  # Public arguments.
+  $source       = $microkernel_source,
+
+  # Private arguments.
+  $repo_store_root = undef, # Defined in body
+
   $file   = 'microkernel.tar',
   $dir    = 'microkernel',
 
-  $repo_store_root         = undef, # Defined in body
-  $collect_repo_store_root = true,
+  $initrd_owner = $::razor::params::razor_user,
+  $initrd_group = $::razor::params::razor_group,
+  $initrd_mode  = '0555',
 
-  $initrd_mode          = '0555',
-  $repo_store_root_mode = '0555',
-  $vmlinuz_mode         = '0555',
+  $vmlinuz_owner = $::razor::params::razor_user,
+  $vmlinuz_group = $::razor::params::razor_group,
+  $vmlinuz_mode  = '0555',
 
   # razor::params default values.
-  $razor_user  = $::razor::params::razor_user,
-  $razor_group = $::razor::params::razor_group,
-  $tmp_dir     = $::razor::params::tmp_dir,
-) inherits razor::params
+  $tmp_dir = $::razor::params::tmp_dir,
+)
 {
-  if ($repo_store_root == undef and defined(Class['::razor::server::config::default']))
-  {
-    $_repo_store_root = $::razor::server::config::default::_repo_store_root
-  }
-  else
-  {
-     $_repo_store_root = $repo_store_root
-  }
+  $_repo_store_root = pick_default($repo_store_root, getparam(::Razor::Server::Config::Environment[$environment]))
 
   if ($ensure == 'present' or ensure == present)
   {
@@ -76,9 +74,9 @@ class razor::server::microkernel
     $file_ensure = $ensure
   }
 
+  # Download and extract the latest Razor microkernel.
   include ::archive
 
-  # Download and extract the latest Razor microkernel.
   archive
   { "${tmp_dir}/${file}":
     ensure       => $ensure,
@@ -92,24 +90,13 @@ class razor::server::microkernel
   }
 
   # Place the initial ramdisk and kernel images in the correct location.
-  if (!(defined(File[$_repo_store_root])))
-  {
-    file
-    { $_repo_store_root:
-      ensure => $directory_ensure,
-      owner  => $razor_user,
-      group  => $razor_group,
-      mode   => $repo_store_root_mode,
-    }
-  }
-
   file
   { "${_repo_store_root}/initrd0.img":
     ensure  => $file_ensure,
     source  => "${tmp_dir}/${dir}/initrd0.img",
 
-    owner   => $razor_user,
-    group   => $razor_group,
+    owner   => $initrd_user,
+    group   => $initrd_group,
     mode    => $initrd_mode,
 
     require => [Archive["${tmp_dir}/${file}"], Class['::razor::server::service']],
@@ -120,8 +107,8 @@ class razor::server::microkernel
     ensure  => $file_ensure,
     source  => "${tmp_dir}/${dir}/vmlinuz0",
 
-    owner   => $razor_user,
-    group   => $razor_group,
+    owner   => $vmlinuz_user,
+    group   => $vmlinuz_group,
     mode    => $vmlinuz_mode,
 
     require => [Archive["${tmp_dir}/${file}"], Class['::razor::server::service']],

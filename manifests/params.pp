@@ -39,11 +39,9 @@ class razor::params
     'Debian':
     {
       # Executable files.
-      $cat         = '/bin/cat'
-      $razor       = '/usr/sbin/razor'
+      $grep        = '/bin/grep'
+      $razor       = '/usr/local/bin/razor'
       $razor_admin = '/usr/sbin/razor-admin'
-      $rm          = '/bin/rm'
-      $tar         = '/bin/tar'
 
       # Working directories.
       $tmp_dir = '/tmp'
@@ -69,4 +67,7 @@ class razor::params
       fail("Sorry, but the koha module does not support the ${::osfamily} OS family at this time")
     }
   }
+
+  # Microkernel default parameters.
+  $microkernel_source = 'http://links.puppetlabs.com/razor-microkernel-latest.tar'
 }
