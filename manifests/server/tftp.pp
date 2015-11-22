@@ -43,7 +43,7 @@ class razor::server::tftp
   $undionly_kpxe_url = 'http://boot.ipxe.org/undionly.kpxe',
 
   $bootstrap_ipxe     = 'bootstrap.ipxe',
-  $bootstrap_ipxe_url = 'http://razor:8150/api/microkernel/bootstrap',
+  $bootstrap_ipxe_url = undef, # Defined in body
 
   $nic_max = undef,
 
@@ -56,6 +56,8 @@ class razor::server::tftp
     $file_ensure         = 'file'
     $undionly_kpxe_path  = "${tmp_dir}/${undionly_kpxe}"
     $bootstrap_ipxe_path = "${tmp_dir}/${bootstrap_ipxe}"
+
+    $_bootstrap_ipxe_url = pick($bootstrap_ipxe_url, "${client_url}/microkernel/bootstrap")
 
     # TFTP server.
     contain ::tftp
@@ -77,28 +79,28 @@ class razor::server::tftp
     if ($nic_max != undef)
     {
       validate_integer($nic_max)
-      $_bootstrap_ipxe_url = "${bootstrap_ipxe_url}?nic_max=${nic_max}"
+      $__bootstrap_ipxe_url = "${bootstrap_ipxe_url}?nic_max=${nic_max}"
     }
     else
     {
-      $_bootstrap_ipxe_url = $bootstrap_ipxe_url
+      $__bootstrap_ipxe_url = $_bootstrap_ipxe_url
     }
 
     ::wget::fetch
-    { $_bootstrap_ipxe_url:
+    { $__bootstrap_ipxe_url:
       destination => $bootstrap_ipxe_path,
     }
 
     if (defined(Class['::razor::server::service']))
     {
-      Class['::razor::server::service'] -> ::Wget::Fetch[$_bootstrap_ipxe_url]
+      Class['::razor::server::service'] -> ::Wget::Fetch[$__bootstrap_ipxe_url]
     }
 
     ::tftp::file
     { $bootstrap_ipxe:
       ensure  => $file_ensure,
       source  => $bootstrap_ipxe_path,
-      require => ::Wget::Fetch[$_bootstrap_ipxe_url],
+      require => ::Wget::Fetch[$__bootstrap_ipxe_url],
     }
   }
 }
