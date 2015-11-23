@@ -46,7 +46,6 @@ define razor::server::repo::ubuntu
 
   $task    = 'ubuntu',
   $iso_url = undef, # Defined in body
-  $url     = undef, # Defined in body
 )
 {
   validate_re($flavor, ['^netboot$', '^server$'], "valid values for flavor are 'desktop' and 'server'")
@@ -70,11 +69,11 @@ define razor::server::repo::ubuntu
 
     if ($backport != undef)
     {
-      $_iso_url = pick($url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images/${backport}-netboot/mini.iso")  
+      $_iso_url = pick($iso_url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images/${backport}-netboot/mini.iso")  
     }
     else
     {
-      $_iso_url = pick($url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images/netboot/mini.iso")
+      $_iso_url = pick($iso_url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images/netboot/mini.iso")
     }
   }
 
@@ -82,6 +81,5 @@ define razor::server::repo::ubuntu
   { $name:
     task    => $task,
     iso_url => $_iso_url,
-    url     => $_url,
   }
 }
