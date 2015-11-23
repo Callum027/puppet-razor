@@ -70,11 +70,11 @@ define razor::server::repo::ubuntu
 
     if ($backport != undef)
     {
-      $_url = pick($url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images/netboot")
+      $_url = pick($url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images/${backport}-netboot")  
     }
     else
     {
-      $_url = pick($url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images/${backport}-netboot")  
+      $_url = pick($url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images/netboot")
     }
   }
 

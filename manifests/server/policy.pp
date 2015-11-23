@@ -63,7 +63,6 @@ define razor::server::policy
 
   # razor::params default values.
   $client_url = $::razor::params::client_url,
-  $grep       = $::razor::params::grep,
   $razor      = $::razor::params::razor,
   $rm         = $::razor::params::rm,
   $tmp_dir    = $::razor::params::tmp_dir,
@@ -93,7 +92,7 @@ define razor::server::policy
     exec
     { "razor::server::policy::create::${name}":
       command => "${razor} --url ${client_url} create-policy --json ${_tmp_file}",
-      unless  => "${razor} --url ${client_url} policies | ${grep} '^| ${policy_name}'",
+      unless  => "${razor} --url ${client_url} policies ${policy_name}",
       require => [Class['::razor::server::service'], File["razor::server::policy::tmp_file::create::${name}"]],
     }
 
@@ -123,7 +122,7 @@ define razor::server::policy
     exec
     { "razor::server::policy::delete::${name}":
       command => "${razor} --url ${client_url} delete-policy --name ${policy_name}",
-      onlyif  => "${razor} --url ${client_url} policy | ${grep} '^| ${policy_name}'",
+      onlyif  => "${razor} --url ${client_url} policies ${policy_name}",
       require => Class['::razor::server::service'],
     }
   }
