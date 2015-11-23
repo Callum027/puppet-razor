@@ -61,7 +61,7 @@ define razor::server::repo
   }
   elsif ($url != undef)
   {
-    $_args = "--url ${iso_url}"
+    $_args = "--url ${url}"
   }
   else
   {
