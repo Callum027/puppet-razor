@@ -63,6 +63,7 @@ define razor::server::microkernel
 )
 {
   $_repo_store_root = pick_default($repo_store_root, getparam(::Razor::Server::Config::Environment[$environment], 'repo_store_root'))
+  $repo_microkernel_filepath = "${_repo_store_root}/razor-microkernel-${name}-${file}"
 
   if ($ensure == 'present' or ensure == present)
   {
@@ -79,7 +80,7 @@ define razor::server::microkernel
   include ::archive
 
   archive
-  { "${_repo_store_root}/razor-microkernel-${name}-${file}":
+  { $repo_microkernel_filepath:
     ensure       => $ensure,
     source       => $source,
 
@@ -99,7 +100,7 @@ define razor::server::microkernel
     group   => $initrd_group,
     mode    => $initrd_mode,
 
-    require => Archive["${_repo_store_root}/${file}"],
+    require => Archive[$repo_microkernel_filepath],
   }
 
   file
@@ -110,6 +111,6 @@ define razor::server::microkernel
     group   => $vmlinuz_group,
     mode    => $vmlinuz_mode,
 
-    require => Archive["${_repo_store_root}/${file}"],
+    require => Archive[$repo_microkernel_filepath],
   }
 }
