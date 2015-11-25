@@ -76,11 +76,11 @@ define razor::server::repo::debian
 
     if ($gui != undef)
     {
-      $_iso_url = pick($iso_url, "http://cdimage.debian.org/debian-cd/${version}/${arch}/iso-cd/debian-${version}-${arch}-${gui}-CD-1.iso")
+      $_iso_url = pick($iso_url, "http://mirrors.kernel.org/debian-cd/${version}/${arch}/iso-cd/debian-${version}-${arch}-${gui}-CD-1.iso")
     }
     else
     {
-      $_iso_url = pick($iso_url, "http://cdimage.debian.org/debian-cd/${version}/${arch}/iso-cd/debian-${version}-${arch}-CD-1.iso") 
+      $_iso_url = pick($iso_url, "http://mirrors.kernel.org/debian-cd/${version}/${arch}/iso-cd/debian-${version}-${arch}-CD-1.iso") 
     }
   }
   elsif ($flavor == 'iso-dvd')
