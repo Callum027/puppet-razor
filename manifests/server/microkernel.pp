@@ -79,44 +79,37 @@ define razor::server::microkernel
   include ::archive
 
   archive
-  { "${tmp_dir}/${file}":
+  { "${_repo_store_root}/razor-microkernel-${name}-${file}":
     ensure       => $ensure,
-
     source       => $source,
 
     extract      => true,
     extract_path => $tmp_dir,
 
-    creates      => "${tmp_dir}/${dir}",
+    creates      => "${_repo_store_root}/${dir}",
+    cleanup      => true,
   }
 
   # Place the initial ramdisk and kernel images in the correct location.
   file
-  { "${_repo_store_root}/${repo_microkernel_dir}":
-    ensure  => $directory_ensure,
-  }
-
-  file
   { "${_repo_store_root}/${repo_microkernel_dir}/initrd0.img":
     ensure  => $file_ensure,
-    source  => "${tmp_dir}/${dir}/initrd0.img",
 
     owner   => $initrd_user,
     group   => $initrd_group,
     mode    => $initrd_mode,
 
-    require => Archive["${tmp_dir}/${file}"],
+    require => Archive["${_repo_store_root}/${file}"],
   }
 
   file
   { "${_repo_store_root}/${repo_microkernel_dir}/vmlinuz0":
     ensure  => $file_ensure,
-    source  => "${tmp_dir}/${dir}/vmlinuz0",
 
     owner   => $vmlinuz_user,
     group   => $vmlinuz_group,
     mode    => $vmlinuz_mode,
 
-    require => Archive["${tmp_dir}/${file}"],
+    require => Archive["${_repo_store_root}/${file}"],
   }
 }

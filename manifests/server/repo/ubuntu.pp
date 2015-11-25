@@ -42,10 +42,12 @@ define razor::server::repo::ubuntu
 
   $release  = undef,
   $codename = undef,
+  $backport = undef,
 
-  $task    = 'ubuntu',
-  $iso_url = undef, # Defined in body
-  $url     = undef, # Defined in body
+  $task         = 'ubuntu',
+  $iso_url      = undef, # Defined in body
+  $archive_url  = undef, # Defined in body
+  $archive_root = undef, # Defined in body
 )
 {
   validate_re($flavor, ['^netboot$', '^server$'], "valid values for flavor are 'desktop' and 'server'")
@@ -67,13 +69,23 @@ define razor::server::repo::ubuntu
         fail("need to specify codename for the netboot flavor of Ubuntu")
     }
 
-    $_url = pick($_url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images")  
+    if ($backport != undef)
+    {
+      $_archive_url = pick($archive_url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images/netboot/netboot.tar.gz")  
+    }
+    else
+    {
+      $_archive_url = pick($archive_url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images/${backport}-netboot/netboot.tar.gz")  
+    }
+
+    $_archive_root = pick($archive_url, '/install/netboot')
   }
 
   ::razor::server::repo
   { $name:
-    task    => $task,
-    iso_url => $_iso_url,
-    url     => $_url,
+    task         => $task,
+    iso_url      => $_iso_url,
+    archive_url  => $_url,
+    archive_root => $_archive_root,
   }
 }

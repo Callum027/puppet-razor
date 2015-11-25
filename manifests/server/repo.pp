@@ -42,12 +42,18 @@ define razor::server::repo
   $url       = undef,
   $iso_url   = undef,
 
+  $archive_url  = undef,
+  $archive_root = undef,
+
+  $environment     = 'all',
+  $repo_store_root = undef, # Defined in body
+
   $ensure = 'present',
   $args   = undef, # Defined in body
 
   # razor::params default values.
-  $client_url = $::razor::params::client_url,
-  $razor      = $::razor::params::razor,
+  $client_url      = $::razor::params::client_url,
+  $razor           = $::razor::params::razor,
 )
 {
   if ($args != undef)
@@ -83,6 +89,40 @@ define razor::server::repo
       command => "${razor} --url ${client_url} delete-repo --name ${repo_name}",
       onlyif  => "${razor} --url ${client_url} repos ${repo_name}",
       require => Class['::razor::server::service'],
+    }
+  }
+
+  if ($archive_root != undef)
+  {
+    if ($ensure == 'present' or $ensure == present)
+    {
+      $directory_ensure = 'directory'
+    }
+    else
+    {
+      $directory_ensure = $ensure
+    }
+
+    $_repo_store_root = pick_default($repo_store_root, getparam(::Razor::Server::Config::Environment[$environment], 'repo_store_root'))
+    $archive_dirtree  = prefix(dirtree($archive_root), $_repo_store_root)
+    $archive_basename = basename($archive_url)
+
+    file
+    { $archive_dirtree:
+      ensure => $directory_ensure,
+    }
+
+    archive
+    { "${tmp_dir}/razor-repo-${name}-${archive_basename}":
+      ensure       => $ensure,
+
+      source       => $archive_url,
+
+      extract      => true,
+      extract_path => $archive_root,
+
+      cleanup      => true,
+      require      => File[$archive_dirtree],
     }
   }
 }
