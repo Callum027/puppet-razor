@@ -76,7 +76,7 @@ define razor::server::repo
   if ($ensure == 'present' or $ensure == present)
   {
     exec
-    { "razor::server::repo::create::${name}":
+    { "razor::server::repo::${name}":
       command => "${razor} --url ${client_url} create-repo ${_args} --name ${repo_name} --task ${task}",
       unless  => "${razor} --url ${client_url} repos ${repo_name}",
       require => Class['::razor::server::service'],
@@ -85,7 +85,7 @@ define razor::server::repo
   elsif ($ensure == 'absent' or $ensure == absent)
   {
     exec
-    { "razor::server::repo::delete::${name}":
+    { "razor::server::repo::${name}":
       command => "${razor} --url ${client_url} delete-repo --name ${repo_name}",
       onlyif  => "${razor} --url ${client_url} repos ${repo_name}",
       require => Class['::razor::server::service'],
@@ -119,10 +119,10 @@ define razor::server::repo
       source       => $archive_url,
 
       extract      => true,
-      extract_path => $archive_root,
+      extract_path => "${_repo_store_root}/${archive_root}",
 
       cleanup      => true,
-      require      => File[$archive_dirtree],
+      require      => [Exec['::razor::server::repo::${name}', File[$archive_dirtree]],
     }
   }
 }
