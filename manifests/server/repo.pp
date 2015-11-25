@@ -52,6 +52,7 @@ define razor::server::repo
   $args   = undef, # Defined in body
 
   # razor::params default values.
+  $tmp_dir         = $::razor::params::tmp_dir,
   $client_url      = $::razor::params::client_url,
   $razor           = $::razor::params::razor,
 )
@@ -92,44 +93,48 @@ define razor::server::repo
     }
   }
 
-  if ($archive_root != undef)
+  if ($archive_url != undef)
   {
-    if ($ensure == 'present' or $ensure == present)
-    {
-      $directory_ensure = 'directory'
-    }
-    else
-    {
-      $directory_ensure = $ensure
-    }
-
-    $_repo_store_root = pick_default($repo_store_root, getparam(::Razor::Server::Config::Environment[$environment], 'repo_store_root'))
-    $archive_dirtree  = prefix(dirtree($archive_root), "${_repo_store_root}/${repo_name}")
     $archive_basename = basename($archive_url)
+    $_repo_store_root = pick_default($repo_store_root, getparam(::Razor::Server::Config::Environment[$environment], 'repo_store_root'))
 
-    file
-    { "${_repo_store_root}/${repo_name}":
-      ensure  => $directory_ensure,
-      require => Exec["razor::server::repo::${name}"],
-    }
+    if ($archive_root != undef)
+    {
+      if ($ensure == 'present' or $ensure == present)
+      {
+        $directory_ensure = 'directory'
+      }
+      else
+      {
+        $directory_ensure = $ensure
+      }
 
-    file
-    { $archive_dirtree:
-      ensure  => $directory_ensure,
-      require => Exec["razor::server::repo::${name}"],
+      $archive_dirtree  = prefix(dirtree($archive_root), "${_repo_store_root}/${repo_name}")
+
+      file
+      { "${_repo_store_root}/${repo_name}":
+        ensure  => $directory_ensure,
+        require => Exec["razor::server::repo::${name}"],
+        before  => Archive["${tmp_dir}/razor-repo-${name}-${archive_basename}"],
+      }
+
+      file
+      { $archive_dirtree:
+        ensure  => $directory_ensure,
+        require => Exec["razor::server::repo::${name}"],
+        before  => Archive["${tmp_dir}/razor-repo-${name}-${archive_basename}"],
+      }
     }
 
     archive
     { "${tmp_dir}/razor-repo-${name}-${archive_basename}":
       ensure       => $ensure,
-
       source       => $archive_url,
 
       extract      => true,
-      extract_path => "${_repo_store_root}/${repo_name}/${archive_root}",
+      extract_path => "${_repo_store_root}/${repo_name}${archive_root}",
 
       cleanup      => true,
-      require      => File[$archive_dirtree],
     }
   }
 }

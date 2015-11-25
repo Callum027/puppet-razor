@@ -78,7 +78,7 @@ define razor::server::repo::ubuntu
       $_archive_url = pick($archive_url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images/${backport}-netboot/netboot.tar.gz")  
     }
 
-    $_archive_root = pick($archive_url, '/install/netboot')
+    $_archive_root = pick($archive_root, '/install/netboot')
   }
 
   ::razor::server::repo
