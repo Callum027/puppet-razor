@@ -38,7 +38,7 @@
 define razor::server::repo::centos
 (
   $version,
-  $flavor = 'DVD',
+  $flavor = 'Minimal',
   $arch   = 'i386',
 
   $task    = 'centos',
