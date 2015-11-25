@@ -90,7 +90,7 @@ define razor::server::repo::debian
         fail("need to specify version number for the iso-dvd flavor of Debian")
     }
 
-    $_iso_url = pick($iso_url, "http://cdimage.debian.org/debian-cd/${version}/${arch}/iso-dvd/debian-${version}-${arch}-DVD-1.iso") 
+    $_iso_url = pick($iso_url, "http://mirrors.kernel.org/debian-cd/${version}/${arch}/iso-dvd/debian-${version}-${arch}-DVD-1.iso") 
   }
   elsif ($flavor == 'netinst')
   {
@@ -99,7 +99,7 @@ define razor::server::repo::debian
         fail("need to specify version number for the netinst flavor of Debian")
     }
 
-    $_iso_url = pick($iso_url, "http://cdimage.debian.org/debian-cd/${version}/${arch}/iso-cd/debian-${version}-${arch}-netinst.iso")
+    $_iso_url = pick($iso_url, "http://mirrors.kernel.org/debian-cd/${version}/${arch}/iso-cd/debian-${version}-${arch}-netinst.iso")
   }
   elsif ($flavor == 'netboot')
   {
