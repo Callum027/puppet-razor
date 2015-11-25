@@ -40,7 +40,7 @@ define razor::server::repo::ubuntu
   $flavor   = 'server',
   $arch     = 'i386',
 
-  $release  = undef,
+  $version  = undef,
   $codename = undef,
 
   $task         = 'ubuntu',
@@ -54,12 +54,12 @@ define razor::server::repo::ubuntu
 
   if ($flavor == 'server')
   {
-    if ($release == undef)
+    if ($version == undef)
     {
-        fail("need to specify release number for the server flavor of Ubuntu")
+        fail("need to specify version number for the server flavor of Ubuntu")
     }
 
-    $_iso_url = pick($iso_url, "http://cdimage.ubuntu.com/${release}/releases/ubuntu-${release}-${flavor}-${arch}.iso")
+    $_iso_url = pick($iso_url, "http://cdimage.ubuntu.com/${release}/releases/ubuntu-${version}-${flavor}-${arch}.iso")
   }
   elsif ($flavor == 'netboot')
   {
