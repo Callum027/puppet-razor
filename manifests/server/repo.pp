@@ -100,6 +100,9 @@ define razor::server::repo
 
     if ($archive_root != undef)
     {
+      $extract_path = "${_repo_store_root}/${repo_name}${archive_root}"
+      $archive_dirtree  = prefix(dirtree($archive_root), "${_repo_store_root}/${repo_name}")
+
       if ($ensure == 'present' or $ensure == present)
       {
         $directory_ensure = 'directory'
@@ -108,8 +111,6 @@ define razor::server::repo
       {
         $directory_ensure = $ensure
       }
-
-      $archive_dirtree  = prefix(dirtree($archive_root), "${_repo_store_root}/${repo_name}")
 
       file
       { "${_repo_store_root}/${repo_name}":
@@ -125,6 +126,10 @@ define razor::server::repo
         before  => Archive["${tmp_dir}/razor-repo-${name}-${archive_basename}"],
       }
     }
+    else
+    {
+      $extract_path = "${_repo_store_root}/${repo_name}"
+    }
 
     archive
     { "${tmp_dir}/razor-repo-${name}-${archive_basename}":
@@ -132,7 +137,7 @@ define razor::server::repo
       source       => $archive_url,
 
       extract      => true,
-      extract_path => "${_repo_store_root}/${repo_name}${archive_root}",
+      extract_path => $extract_path,
 
       cleanup      => true,
     }

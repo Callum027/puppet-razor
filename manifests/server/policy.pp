@@ -75,25 +75,34 @@ define razor::server::policy
     fail("only one of before and after are allowed to be specified")
   }
 
+  $_tmp_file = pick($tmp_file, "${tmp_dir}/razor_policy_${name}.json")
+
   if ($ensure == 'present' or $ensure == present)
   {
-    $_tmp_file = pick($tmp_file, "${tmp_dir}/razor_policy_${name}.json")
+    $file_ensure = 'file'
+  }
+  else
+  {
+    $file_ensure = $ensure
+  }
 
-    file
-    { "razor::server::policy::tmp_file::create::${name}":
-      ensure  => 'file',
-      path    => $_tmp_file,
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0400',
-      content => template('razor/policy.json.erb'),
-    }
+  file
+  { "razor::server::policy::tmp_file::${name}":
+    ensure  => $file_ensure,
+    path    => $_tmp_file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0400',
+    content => template('razor/policy.json.erb'),
+  }
 
+  if ($ensure == 'present' or $ensure == present)
+  {
     exec
     { "razor::server::policy::create::${name}":
       command => "${razor} --url ${client_url} create-policy --json ${_tmp_file}",
       unless  => "${razor} --url ${client_url} policies ${policy_name}",
-      require => [Class['::razor::server::service'], File["razor::server::policy::tmp_file::create::${name}"]],
+      require => [Class['::razor::server::service'], File["razor::server::policy::tmp_file::${name}"]],
     }
 
     if ($require_repo == true)
@@ -109,12 +118,6 @@ define razor::server::policy
     if ($tags != undef and $require_tags == true)
     {
       ::Razor::Server::Tag[$tags] -> Exec["razor::server::policy::create::${name}"]
-    }
-
-    exec
-    { "razor::server::policy::tmp_file::delete::${name}":
-      command => "${rm} -rf ${_tmp_file}",
-      require => Exec["razor::server::policy::create::${name}"],
     }
   }
   elsif ($ensure == 'absent' or $ensure == absent)
