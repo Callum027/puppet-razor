@@ -98,17 +98,17 @@ define razor::server::policy
 
     if ($require_repo == true)
     {
-      ::Razor::Server::Repo[$repo] -> Exec["razor::server::policy::${name}"]
+      ::Razor::Server::Repo[$repo] -> Exec["razor::server::policy::create::${name}"]
     }
 
     if ($require_broker == true)
     {
-      ::Razor::Server::Broker[$broker] -> Exec["razor::server::policy::${name}"]
+      ::Razor::Server::Broker[$broker] -> Exec["razor::server::policy::create::${name}"]
     }
 
     if ($tags != undef and $require_tags == true)
     {
-      ::Razor::Server::Tag[$tags] -> Exec["razor::server::policy::${name}"]
+      ::Razor::Server::Tag[$tags] -> Exec["razor::server::policy::create::${name}"]
     }
 
     exec
