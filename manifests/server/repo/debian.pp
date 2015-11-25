@@ -37,7 +37,7 @@
 #
 define razor::server::repo::debian
 (
-  $flavor   = 'iso-cd',
+  $flavor   = 'netinst',
   $arch     = 'i386',
   $gui      = undef,
 
@@ -64,35 +64,10 @@ define razor::server::repo::debian
     '^s390x$'
   ]
 
-  validate_re($flavor, ['^iso-cd$', '^iso-dvd$', '^netinst$', '^netboot$'], "valid values for flavor are 'iso-cd', 'iso-dvd', 'netinst' and 'netboot'")
+  validate_re($flavor, ['^netinst$', '^netboot$'], "valid values for flavor are 'netinst' and 'netboot'")
   validate_re($arch, $supported_arches, "unsupported arch, see http://debian.org/distrib for a list of compatible architectures")
 
-  if ($flavor == 'iso-cd')
-  {
-    if ($version == undef)
-    {
-        fail("need to specify version number for the iso-cd flavor of Debian")
-    }
-
-    if ($gui != undef)
-    {
-      $_iso_url = pick($iso_url, "http://mirrors.kernel.org/debian-cd/${version}/${arch}/iso-cd/debian-${version}-${arch}-${gui}-CD-1.iso")
-    }
-    else
-    {
-      $_iso_url = pick($iso_url, "http://mirrors.kernel.org/debian-cd/${version}/${arch}/iso-cd/debian-${version}-${arch}-CD-1.iso") 
-    }
-  }
-  elsif ($flavor == 'iso-dvd')
-  {
-    if ($version == undef)
-    {
-        fail("need to specify version number for the iso-dvd flavor of Debian")
-    }
-
-    $_iso_url = pick($iso_url, "http://mirrors.kernel.org/debian-cd/${version}/${arch}/iso-dvd/debian-${version}-${arch}-DVD-1.iso") 
-  }
-  elsif ($flavor == 'netinst')
+  if ($flavor == 'netinst')
   {
     if ($version == undef)
     {
