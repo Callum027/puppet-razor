@@ -85,7 +85,7 @@ define razor::server::repo::ubuntu
   { $name:
     task         => $task,
     iso_url      => $_iso_url,
-    archive_url  => $_url,
+    archive_url  => $_archive_url,
     archive_root => $_archive_root,
   }
 }
