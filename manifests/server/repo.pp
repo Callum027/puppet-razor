@@ -122,7 +122,7 @@ define razor::server::repo
       extract_path => "${_repo_store_root}/${archive_root}",
 
       cleanup      => true,
-      require      => [Exec["::razor::server::repo::${name}"], File[$archive_dirtree]],
+      require      => [Exec["razor::server::repo::${name}"], File[$archive_dirtree]],
     }
   }
 }
