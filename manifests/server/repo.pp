@@ -104,12 +104,13 @@ define razor::server::repo
     }
 
     $_repo_store_root = pick_default($repo_store_root, getparam(::Razor::Server::Config::Environment[$environment], 'repo_store_root'))
-    $archive_dirtree  = prefix(dirtree($archive_root), $_repo_store_root)
+    $archive_dirtree  = prefix(dirtree($archive_root), "${_repo_store_root}/${repo_name}")
     $archive_basename = basename($archive_url)
 
     file
     { $archive_dirtree:
-      ensure => $directory_ensure,
+      ensure  => $directory_ensure,
+      require => Exec["razor::server::repo::${name}"],
     }
 
     archive
@@ -119,10 +120,10 @@ define razor::server::repo
       source       => $archive_url,
 
       extract      => true,
-      extract_path => "${_repo_store_root}/${archive_root}",
+      extract_path => "${_repo_store_root}/${repo_name}/${archive_root}",
 
       cleanup      => true,
-      require      => [Exec["razor::server::repo::${name}"], File[$archive_dirtree]],
+      require      => File[$archive_dirtree],
     }
   }
 }
