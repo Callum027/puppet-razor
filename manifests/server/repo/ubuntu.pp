@@ -37,7 +37,7 @@
 #
 define razor::server::repo::ubuntu
 (
-  $flavor   = 'netboot',
+  $flavor   = 'server',
   $arch     = 'i386',
 
   $release  = undef,
