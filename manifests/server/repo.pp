@@ -93,7 +93,7 @@ define razor::server::repo
     }
   }
 
-  if ($archive_url != undef)
+  if ($url == undef and $iso_url == undef and $archive_url != undef)
   {
     $archive_basename = basename($archive_url)
     $_repo_store_root = pick_default($repo_store_root, getparam(::Razor::Server::Config::Environment[$environment], 'repo_store_root'))
