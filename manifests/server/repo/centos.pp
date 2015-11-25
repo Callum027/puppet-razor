@@ -41,12 +41,25 @@ define razor::server::repo::centos
   $flavor = 'Minimal',
   $arch   = 'i386',
 
-  $task    = 'centos',
+  $task    = undef, # Defined in body
   $iso_url = undef, # Defined in body 
 )
 {
   validate_re($flavor, ['^DVD$', '^Minimal$', '^Everything$', '^NetInstall$'], "valid values for flavor are 'desktop' and 'server'")
   validate_re($arch, ['^i386$', '^x86_64$', '^aarch64$'], "valid values for arch are 'i386', 'x86_64' and 'aarch64'")
+
+  if ($version =~ /^7/)
+  {
+    $_task = pick($task, 'centos/7')
+  }
+  elsif ($version =~ /^6/)
+  {
+    $_task = pick($task, 'centos/6')
+  }
+  else
+  {
+    $_task = pick($task, 'centos')
+  }
 
   if ($version =~ /^7/ and $arch == 'x86_64' and $flavor == 'NetInstall')
   {

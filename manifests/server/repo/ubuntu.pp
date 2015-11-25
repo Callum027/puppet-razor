@@ -37,46 +37,20 @@
 #
 define razor::server::repo::ubuntu
 (
-  $flavor   = 'server',
-  $arch     = 'i386',
-
-  $version  = undef,
-  $codename = undef,
+  $version,
+  $arch = 'i386',
 
   $task         = 'ubuntu',
   $iso_url      = undef, # Defined in body
-  $archive_url  = undef, # Defined in body
-  $archive_root = undef, # Defined in body
 )
 {
-  validate_re($flavor, ['^netboot$', '^server$'], "valid values for flavor are 'desktop' and 'server'")
   validate_re($arch, ['^i386$', '^amd64$'], "valid values for arch are 'i386' and 'amd64'")
 
-  if ($flavor == 'server')
-  {
-    if ($version == undef)
-    {
-        fail("need to specify version number for the server flavor of Ubuntu")
-    }
-
-    $_iso_url = pick($iso_url, "http://cdimage.ubuntu.com/${release}/releases/ubuntu-${version}-${flavor}-${arch}.iso")
-  }
-  elsif ($flavor == 'netboot')
-  {
-    if ($codename == undef)
-    {
-        fail("need to specify codename for the netboot flavor of Ubuntu")
-    }
-
-    $_archive_url = pick($archive_url, "http://archive.ubuntu.com/ubuntu/dists/${codename}-updates/main/installer-${arch}/current/images/netboot/netboot.tar.gz")  
-    $_archive_root = pick($archive_root, '/install/netboot')
-  }
+  $_iso_url = pick($iso_url, "http://cdimage.ubuntu.com/${release}/releases/ubuntu-${version}-server-${arch}.iso")
 
   ::razor::server::repo
   { $name:
     task         => $task,
     iso_url      => $_iso_url,
-    archive_url  => $_archive_url,
-    archive_root => $_archive_root,
   }
 }
