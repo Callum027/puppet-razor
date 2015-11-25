@@ -108,6 +108,12 @@ define razor::server::repo
     $archive_basename = basename($archive_url)
 
     file
+    { "${_repo_store_root}/${repo_name}":
+      ensure  => $directory_ensure,
+      require => Exec["razor::server::repo::${name}"],
+    }
+
+    file
     { $archive_dirtree:
       ensure  => $directory_ensure,
       require => Exec["razor::server::repo::${name}"],
