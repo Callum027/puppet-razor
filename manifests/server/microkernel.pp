@@ -86,8 +86,8 @@ define razor::server::microkernel
 
     extract      => true,
     extract_path => $tmp_dir,
-
     creates      => "${_repo_store_root}/${dir}",
+
     cleanup      => true,
   }
 
