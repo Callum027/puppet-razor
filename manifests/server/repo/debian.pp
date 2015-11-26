@@ -44,10 +44,11 @@ define razor::server::repo::debian
   $version  = undef,
   $codename = undef,
 
-  $task         = 'debian',
-  $iso_url      = undef, # Defined in body
-  $archive_url  = undef, # Defined in body
-  $archive_root = undef, # Defined in body
+  $task            = 'debian',
+  $iso_url         = undef, # Defined in body
+  $archive_url     = undef, # Defined in body
+  $archive_root    = undef, # Defined in body
+  $archive_creates = undef, # Defined in body
 )
 {
   $supported_arches = 
@@ -83,15 +84,17 @@ define razor::server::repo::debian
         fail("need to specify codename for the netboot flavor of Debian")
     }
 
-    $_archive_url = pick($archive_url, "http://ftp.nl.debian.org/debian/dists/${codename}/main/installer-${arch}/current/images/netboot/netboot.tar.gz")  
-    $_archive_root = pick($archive_root, '/install/netboot')
+    $_archive_url    = pick($archive_url, "http://ftp.debian.org/debian/dists/${codename}/main/installer-${arch}/current/images/netboot/netboot.tar.gz")  
+    $_archive_root    = pick($archive_root, '/install/netboot')
+    $_archive_creates = pick($archive_creates, '/debian-installer')
   }
 
   ::razor::server::repo
   { $name:
-    task         => $task,
-    iso_url      => $_iso_url,
-    archive_url  => $_archive_url,
-    archive_root => $_archive_root,
+    task            => $task,
+    iso_url         => $_iso_url,
+    archive_url     => $_archive_url,
+    archive_root    => $_archive_root,
+    archive_creates => $_archive_creates,
   }
 }

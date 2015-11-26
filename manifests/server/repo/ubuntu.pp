@@ -40,8 +40,8 @@ define razor::server::repo::ubuntu
   $version,
   $arch = 'i386',
 
-  $task         = 'ubuntu',
-  $iso_url      = undef, # Defined in body
+  $task    = 'ubuntu',
+  $iso_url = undef, # Defined in body
 )
 {
   validate_re($arch, ['^i386$', '^amd64$'], "valid values for arch are 'i386' and 'amd64'")
@@ -50,7 +50,7 @@ define razor::server::repo::ubuntu
 
   ::razor::server::repo
   { $name:
-    task         => $task,
-    iso_url      => $_iso_url,
+    task    => $task,
+    iso_url => $_iso_url,
   }
 }

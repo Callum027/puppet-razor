@@ -42,8 +42,9 @@ define razor::server::repo
   $url       = undef,
   $iso_url   = undef,
 
-  $archive_url  = undef,
-  $archive_root = undef,
+  $archive_url     = undef,
+  $archive_root    = undef,
+  $archive_creates = undef,
 
   $environment     = 'all',
   $repo_store_root = undef, # Defined in body
@@ -131,6 +132,11 @@ define razor::server::repo
       $extract_path = "${_repo_store_root}/${repo_name}"
     }
 
+    if ($archive_creates != undef)
+    {
+      $extract_creates = "${extract_path}${archive_creates}"
+    }
+
     archive
     { "${tmp_dir}/razor-repo-${name}-${archive_basename}":
       ensure       => $ensure,
@@ -138,6 +144,7 @@ define razor::server::repo
 
       extract      => true,
       extract_path => $extract_path,
+      creates      => $extract_creates,
 
       cleanup      => true,
     }
